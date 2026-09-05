@@ -10,9 +10,7 @@
       ]
     },
     "vercel": {
-      "type": "http",
-      "url": "https://mcp.vercel.com",
-      "note": "Official Vercel MCP server."
+      "serverUrl": "https://mcp.vercel.com"
     }
   }
 }
