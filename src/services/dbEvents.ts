@@ -13,19 +13,24 @@ export function notifyDbChange(): void {
 export function subscribeToDb(callback: () => void): () => void {
   const handler = () => callback();
   dbEventTarget.addEventListener(DB_CHANGE_EVENT, handler);
-  window.addEventListener('storage', handler);
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', handler);
+  }
   return () => {
     dbEventTarget.removeEventListener(DB_CHANGE_EVENT, handler);
-    window.removeEventListener('storage', handler);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('storage', handler);
+    }
   };
 }
 
 export function loadLocalCache<T>(key: string, fallback: T): T {
   try {
-    if (typeof window === 'undefined' || typeof localStorage === 'undefined' || typeof localStorage.getItem !== 'function') {
+    const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+    if (!storage || typeof storage.getItem !== 'function') {
       return fallback;
     }
-    const raw = localStorage.getItem(key);
+    const raw = storage.getItem(key);
     if (!raw) return fallback;
     return JSON.parse(raw) as T;
   } catch {
@@ -35,10 +40,11 @@ export function loadLocalCache<T>(key: string, fallback: T): T {
 
 export function saveLocalCache<T>(key: string, data: T): void {
   try {
-    if (typeof window === 'undefined' || typeof localStorage === 'undefined' || typeof localStorage.setItem !== 'function') {
+    const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+    if (!storage || typeof storage.setItem !== 'function') {
       return;
     }
-    localStorage.setItem(key, JSON.stringify(data));
+    storage.setItem(key, JSON.stringify(data));
   } catch (err) {
     console.warn(`saveLocalCache error for key "${key}":`, err);
   }

@@ -5,6 +5,8 @@ import {
   setDoc,
   updateDoc,
   onSnapshot,
+  query,
+  where,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Attempt, Student, Assessment } from '../types';
@@ -16,6 +18,7 @@ import { notifyDbChange, saveLocalCache, loadLocalCache } from './dbEvents';
 
 const COLLECTION = 'attempts';
 const STORAGE_KEY = 'creativa_attempts_cache';
+const COMPLETED_STORAGE_KEY = 'creativa_completed_assessments';
 
 let cachedAttempts: Attempt[] = loadLocalCache<Attempt[]>(STORAGE_KEY, []);
 
@@ -28,6 +31,134 @@ function shuffleArray<T>(array: T[]): T[] {
   return result;
 }
 
+export function markAssessmentCompletedLocally(
+  assessmentId: string,
+  details?: { attemptId?: string; submittedAt?: string }
+): void {
+  try {
+    const record = loadLocalCache<Record<string, { attemptId?: string; submittedAt: string }>>(
+      COMPLETED_STORAGE_KEY,
+      {}
+    );
+    record[assessmentId] = {
+      attemptId: details?.attemptId,
+      submittedAt: details?.submittedAt || new Date().toISOString(),
+    };
+    saveLocalCache(COMPLETED_STORAGE_KEY, record);
+    notifyDbChange();
+  } catch (err) {
+    console.warn('markAssessmentCompletedLocally error:', err);
+  }
+}
+
+export function isAssessmentCompletedLocally(assessmentId: string): boolean {
+  try {
+    const record = loadLocalCache<Record<string, { attemptId?: string; submittedAt: string }>>(
+      COMPLETED_STORAGE_KEY,
+      {}
+    );
+    return Boolean(record[assessmentId]);
+  } catch {
+    return false;
+  }
+}
+
+export function getLocalCompletedAttemptInfo(
+  assessmentId: string
+): { attemptId?: string; submittedAt: string } | null {
+  try {
+    const record = loadLocalCache<Record<string, { attemptId?: string; submittedAt: string }>>(
+      COMPLETED_STORAGE_KEY,
+      {}
+    );
+    return record[assessmentId] || null;
+  } catch {
+    return null;
+  }
+}
+
+export async function checkCompletedAttemptAsync(
+  assessmentId: string,
+  studentId?: string,
+  nationalId?: string
+): Promise<{ hasCompleted: boolean; attempt?: Attempt; submittedAt?: string }> {
+  // 1. Check local device submission record
+  const localInfo = getLocalCompletedAttemptInfo(assessmentId);
+  if (localInfo) {
+    const localAttempt = cachedAttempts.find((a) => a.id === localInfo.attemptId);
+    return { hasCompleted: true, submittedAt: localInfo.submittedAt, attempt: localAttempt };
+  }
+
+  // 2. Check cached attempts in memory
+  if (studentId) {
+    const localAttempt = cachedAttempts.find(
+      (a) =>
+        a.assessmentId === assessmentId &&
+        a.studentId === studentId &&
+        (a.status === 'SUBMITTED' || a.status === 'AUTO_SUBMITTED')
+    );
+    if (localAttempt) {
+      return { hasCompleted: true, attempt: localAttempt, submittedAt: localAttempt.submittedAt };
+    }
+  }
+
+  // 3. Query Cloud Firestore directly for studentId
+  if (studentId) {
+    try {
+      const q = query(
+        collection(db, COLLECTION),
+        where('assessmentId', '==', assessmentId),
+        where('studentId', '==', studentId)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const found = snap.docs.map((d) => d.data() as Attempt);
+        const submitted = found.find(
+          (a) => a.status === 'SUBMITTED' || a.status === 'AUTO_SUBMITTED'
+        );
+        if (submitted) {
+          markAssessmentCompletedLocally(assessmentId, {
+            attemptId: submitted.id,
+            submittedAt: submitted.submittedAt,
+          });
+          return { hasCompleted: true, attempt: submitted, submittedAt: submitted.submittedAt };
+        }
+      }
+    } catch (err) {
+      console.warn('checkCompletedAttemptAsync query error:', err);
+    }
+  }
+
+  // 4. If nationalId provided, also check by deterministic ID std_${nationalId}
+  if (nationalId && (!studentId || studentId !== `std_${nationalId.trim()}`)) {
+    try {
+      const q = query(
+        collection(db, COLLECTION),
+        where('assessmentId', '==', assessmentId),
+        where('studentId', '==', `std_${nationalId.trim()}`)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const found = snap.docs.map((d) => d.data() as Attempt);
+        const submitted = found.find(
+          (a) => a.status === 'SUBMITTED' || a.status === 'AUTO_SUBMITTED'
+        );
+        if (submitted) {
+          markAssessmentCompletedLocally(assessmentId, {
+            attemptId: submitted.id,
+            submittedAt: submitted.submittedAt,
+          });
+          return { hasCompleted: true, attempt: submitted, submittedAt: submitted.submittedAt };
+        }
+      }
+    } catch (err) {
+      console.warn('checkCompletedAttemptAsync nationalId query error:', err);
+    }
+  }
+
+  return { hasCompleted: false };
+}
+
 export function getAttempts(): Attempt[] {
   return cachedAttempts;
 }
@@ -38,7 +169,10 @@ export async function fetchAttempts(): Promise<Attempt[]> {
   try {
     const snap = await getDocs(collection(db, COLLECTION));
     if (!snap.empty) {
-      cachedAttempts = snap.docs.map((d) => d.data() as Attempt);
+      const remoteDocs = snap.docs.map((d) => d.data() as Attempt);
+      const remoteIds = new Set(remoteDocs.map((a) => a.id));
+      const localOnly = cachedAttempts.filter((a) => !remoteIds.has(a.id));
+      cachedAttempts = [...remoteDocs, ...localOnly];
       saveLocalCache(STORAGE_KEY, cachedAttempts);
       notifyDbChange();
     }
@@ -47,7 +181,6 @@ export async function fetchAttempts(): Promise<Attempt[]> {
   }
   return cachedAttempts;
 }
-
 
 export function getAttemptById(attemptId: string): Attempt | null {
   return cachedAttempts.find((a) => a.id === attemptId) || null;
@@ -120,7 +253,7 @@ export function startStudentAttempt(
 
   if (latestAttempt) {
     if (latestAttempt.status === 'SUBMITTED' || latestAttempt.status === 'AUTO_SUBMITTED') {
-      return latestAttempt;
+      throw new Error('You have already submitted this assessment. Multiple attempts are not permitted.');
     }
 
     const now = Date.now();
@@ -266,6 +399,12 @@ export function submitStudentAttempt(
     attempt.isReviewed = isFullyReviewed;
   }
 
+  // Lock this assessment on the current device
+  markAssessmentCompletedLocally(attempt.assessmentId, {
+    attemptId: attempt.id,
+    submittedAt: attempt.submittedAt,
+  });
+
   updateDoc(doc(db, COLLECTION, attemptId), {
     status: attempt.status,
     submittedAt: attempt.submittedAt,
@@ -330,7 +469,6 @@ export function resetStudentAttempt(attemptId: string): Attempt | null {
     console.error('Firestore resetStudentAttempt error:', err);
   });
 
-
   logAuditAction('ATTEMPT_RESET', 'Attempt', oldAttempt.id, {
     studentId: oldAttempt.studentId,
     newAttemptId: newAttempt.id,
@@ -345,9 +483,14 @@ export function subscribeToAttempts(callback: (attempts: Attempt[]) => void): ()
     collection(db, COLLECTION),
     (snap) => {
       if (!snap.empty) {
-        cachedAttempts = snap.docs.map((d) => d.data() as Attempt);
+        const remoteDocs = snap.docs.map((d) => d.data() as Attempt);
+        const remoteIds = new Set(remoteDocs.map((a) => a.id));
+        const localOnly = cachedAttempts.filter((a) => !remoteIds.has(a.id));
+        cachedAttempts = [...remoteDocs, ...localOnly];
+        saveLocalCache(STORAGE_KEY, cachedAttempts);
       }
       callback(cachedAttempts);
+      notifyDbChange();
     },
     (err) => {
       console.warn('subscribeToAttempts listener error:', err);

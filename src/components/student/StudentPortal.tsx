@@ -10,6 +10,7 @@ import {
   getCourses,
   subscribeToDb,
   sanitizeAssessmentForStudent,
+  isAssessmentCompletedLocally,
 } from '../../services/db';
 import { Assessment, Course, Attempt } from '../../types';
 import { StudentLanding } from './StudentLanding';
@@ -22,6 +23,7 @@ import {
   Shield,
   Clock,
   BookOpen,
+  CheckCircle2,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -377,15 +379,22 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                       <span className="text-[10px] text-[#9e9e9e] font-medium">
                         {asm.questions?.length || 0} Questions
                       </span>
-                      <button
-                        onClick={() => {
-                          setToken(asm.publicToken);
-                        }}
-                        className="btn-pill-primary py-1 px-3 text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1"
-                      >
-                        <span>Start</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </button>
+                      {isAssessmentCompletedLocally(asm.id) ? (
+                        <span className="inline-flex items-center gap-1 py-1 px-2.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span>Submitted</span>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setToken(asm.publicToken);
+                          }}
+                          className="btn-pill-primary py-1 px-3 text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1"
+                        >
+                          <span>Start</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
                   </motion.div>
                 );
