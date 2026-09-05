@@ -11,13 +11,16 @@ import {
   Menu,
   X,
   Plus,
+  RefreshCw,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   getCoordinatorSession,
   logoutCoordinator,
   getPendingEssayReviews,
+  syncAllToFirestore,
 } from '../../services/db';
+import { showToast } from '../common/Toast';
 
 interface CoordinatorLayoutProps {
   currentTab: 'dashboard' | 'courses' | 'categories' | 'essays' | 'archived';
@@ -37,7 +40,24 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
   children,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const session = getCoordinatorSession();
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await syncAllToFirestore();
+      if (res.totalSynced > 0) {
+        showToast(`Synced ${res.syncedCourses} course(s) and ${res.syncedAssessments} assessment(s) to Cloud Firestore!`, 'success');
+      } else {
+        showToast('All local data is already in sync with Cloud Firestore.', 'info');
+      }
+    } catch (err: any) {
+      showToast(err?.message || 'Sync failed. Check internet connection.', 'error');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Calculate pending essay reviews
   const pendingEssayCount = getPendingEssayReviews().length;
@@ -160,6 +180,21 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
 
           {/* Right: Quick Utility Actions */}
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
+              id="top-cloud-sync-btn"
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors cursor-pointer ${
+                isSyncing
+                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+              }`}
+              title="Sync courses & assessments to Cloud Firestore"
+            >
+              <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin text-amber-600' : 'text-emerald-600'}`} />
+              <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Cloud Sync'}</span>
+            </button>
+
             <button
               onClick={onOpenStudentDemo}
               id="top-student-view-btn"

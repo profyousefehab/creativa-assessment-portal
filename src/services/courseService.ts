@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   setDoc,
   updateDoc,
@@ -34,12 +35,39 @@ export function getCourseById(id: string): Course | null {
   return cachedCourses.find((c) => c.id === id) || null;
 }
 
+export async function fetchCourseById(id: string): Promise<Course | null> {
+  const local = getCourseById(id);
+  if (local) return local;
+
+  try {
+    const snap = await getDoc(doc(db, COLLECTION, id));
+    if (snap.exists()) {
+      const course = snap.data() as Course;
+      const idx = cachedCourses.findIndex((c) => c.id === course.id);
+      if (idx >= 0) {
+        cachedCourses[idx] = course;
+      } else {
+        cachedCourses.unshift(course);
+      }
+      saveLocalCache(STORAGE_KEY, cachedCourses);
+      notifyDbChange();
+      return course;
+    }
+  } catch (err) {
+    console.warn('fetchCourseById error:', err);
+  }
+  return null;
+}
+
 export async function fetchCourses(includeArchived = false): Promise<Course[]> {
   try {
     const q = query(collection(db, COLLECTION), orderBy('createdAt', 'desc'));
     const snap = await getDocs(q);
     if (!snap.empty) {
-      cachedCourses = snap.docs.map((d) => d.data() as Course);
+      const remoteDocs = snap.docs.map((d) => d.data() as Course);
+      const remoteIds = new Set(remoteDocs.map((c) => c.id));
+      const localOnly = cachedCourses.filter((c) => !remoteIds.has(c.id));
+      cachedCourses = [...remoteDocs, ...localOnly];
       saveLocalCache(STORAGE_KEY, cachedCourses);
       notifyDbChange();
     }
@@ -48,6 +76,23 @@ export async function fetchCourses(includeArchived = false): Promise<Course[]> {
   }
 
   return getCourses(includeArchived);
+}
+
+export async function syncCoursesToFirestore(): Promise<number> {
+  let synced = 0;
+  try {
+    const snap = await getDocs(collection(db, COLLECTION));
+    const remoteIds = new Set(snap.docs.map((d) => d.id));
+    for (const course of cachedCourses) {
+      if (!remoteIds.has(course.id)) {
+        await setDoc(doc(db, COLLECTION, course.id), course, { merge: true });
+        synced++;
+      }
+    }
+  } catch (err) {
+    console.warn('syncCoursesToFirestore error:', err);
+  }
+  return synced;
 }
 
 export function createCourse(data: {
@@ -168,7 +213,10 @@ export function subscribeToCourses(
     q,
     (snap) => {
       if (!snap.empty) {
-        cachedCourses = snap.docs.map((d) => d.data() as Course);
+        const remoteDocs = snap.docs.map((d) => d.data() as Course);
+        const remoteIds = new Set(remoteDocs.map((c) => c.id));
+        const localOnly = cachedCourses.filter((c) => !remoteIds.has(c.id));
+        cachedCourses = [...remoteDocs, ...localOnly];
         saveLocalCache(STORAGE_KEY, cachedCourses);
       }
       callback(includeArchived ? cachedCourses : cachedCourses.filter((c) => !c.isArchived));

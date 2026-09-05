@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   getAssessmentByPublicToken,
+  fetchAssessmentByToken,
   getCourseById,
+  fetchCourseById,
   getAssessmentById,
   getAttemptById,
   getAssessments,
@@ -43,6 +45,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   const [course, setCourse] = useState<Course | null>(null);
   const [activeAttemptId, setActiveAttemptId] = useState<string | null>(null);
   const [completedAttemptId, setCompletedAttemptId] = useState<string | null>(null);
+  const [isLoadingToken, setIsLoadingToken] = useState<boolean>(false);
 
   // Manual token input state
   const [inputCode, setInputCode] = useState('');
@@ -52,29 +55,74 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   const [allAssessments, setAllAssessments] = useState<Assessment[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
 
-  const loadData = () => {
-    setAllAssessments(getAssessments().map(sanitizeAssessmentForStudent));
-    setAllCourses(getCourses(false));
+  useEffect(() => {
+    let isCancelled = false;
 
-    if (token) {
-      const asm = getAssessmentByPublicToken(token);
-      if (asm) {
-        setAssessment(sanitizeAssessmentForStudent(asm));
-        const c = getCourseById(asm.courseId);
-        setCourse(c || null);
-      } else {
+    const loadLocal = () => {
+      setAllAssessments(getAssessments().map(sanitizeAssessmentForStudent));
+      setAllCourses(getCourses(false));
+    };
+
+    loadLocal();
+
+    const resolveToken = async () => {
+      if (!token) {
         setAssessment(null);
         setCourse(null);
+        setIsLoadingToken(false);
+        return;
       }
-    } else {
-      setAssessment(null);
-      setCourse(null);
-    }
-  };
 
-  useEffect(() => {
-    loadData();
-    return subscribeToDb(loadData);
+      // 1. Check in-memory cache
+      const cachedAsm = getAssessmentByPublicToken(token);
+      if (cachedAsm) {
+        setAssessment(sanitizeAssessmentForStudent(cachedAsm));
+        const c = getCourseById(cachedAsm.courseId);
+        if (c) {
+          setCourse(c);
+        } else {
+          const remoteCourse = await fetchCourseById(cachedAsm.courseId);
+          if (!isCancelled && remoteCourse) setCourse(remoteCourse);
+        }
+        setIsLoadingToken(false);
+        return;
+      }
+
+      // 2. Query Firestore directly for the public token
+      setIsLoadingToken(true);
+      try {
+        const remoteAsm = await fetchAssessmentByToken(token);
+        if (isCancelled) return;
+
+        if (remoteAsm) {
+          setAssessment(remoteAsm);
+          const remoteCourse = await fetchCourseById(remoteAsm.courseId);
+          if (!isCancelled && remoteCourse) setCourse(remoteCourse);
+        } else {
+          setAssessment(null);
+          setCourse(null);
+        }
+      } catch (err) {
+        console.warn('Error fetching assessment by token:', err);
+        if (!isCancelled) {
+          setAssessment(null);
+          setCourse(null);
+        }
+      } finally {
+        if (!isCancelled) setIsLoadingToken(false);
+      }
+    };
+
+    resolveToken();
+
+    const unsubscribe = subscribeToDb(() => {
+      if (!isCancelled) loadLocal();
+    });
+
+    return () => {
+      isCancelled = true;
+      unsubscribe();
+    };
   }, [token]);
 
   // If active attempt is set, retrieve it
@@ -111,17 +159,21 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   };
 
   // Handle manual code submission
-  const handleManualCodeSubmit = (e: React.FormEvent) => {
+  const handleManualCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const clean = inputCode.trim();
     if (!clean) return;
-    const found = getAssessmentByPublicToken(clean);
+    setInputError(null);
+    setIsLoadingToken(true);
+
+    const found = await fetchAssessmentByToken(clean);
     if (!found) {
+      setIsLoadingToken(false);
       setInputError('Assessment code not found. Please verify with your instructor.');
       return;
     }
-    setInputError(null);
     setToken(clean);
+    setIsLoadingToken(false);
   };
 
   // 1. If currently in active test run
@@ -248,12 +300,22 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
           )}
         </motion.div>
 
+        {/* Token Loading State */}
+        {isLoadingToken && (
+          <div className="py-6 flex flex-col items-center justify-center gap-2 text-center max-w-md mx-auto bg-white/80 border border-[#e5e5e5] rounded-2xl p-4">
+            <div className="w-5 h-5 border-2 border-[#004e9e] border-t-transparent rounded-full animate-spin" />
+            <p className="text-xs text-[#616161] font-medium">
+              Connecting to assessment <code className="font-mono font-bold text-[#004e9e] bg-[#e6eff8] px-1.5 py-0.5 rounded">{token || inputCode}</code>...
+            </p>
+          </div>
+        )}
+
         {/* Invalid Token Alert Banner */}
-        {token && !assessment && (
+        {!isLoadingToken && token && !assessment && (
           <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-2 max-w-md mx-auto">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-              <span>Assessment <code className="font-mono font-bold bg-rose-100 px-1 py-0.2 rounded">{token}</code> not found.</span>
+              <span>Assessment <code className="font-mono font-bold bg-rose-100 px-1 py-0.2 rounded">{token}</code> not found or not yet published.</span>
             </div>
             <button
               onClick={handleReturnHome}

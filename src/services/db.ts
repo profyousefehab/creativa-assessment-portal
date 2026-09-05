@@ -12,6 +12,7 @@ export * from './attemptService';
 export * from './gradingService';
 export * from './analyticsService';
 export * from './auditService';
+export * from './syncService';
 export { clearAllFirestoreData } from '../scripts/clearFirestore';
 
 import { fetchCourses, subscribeToCourses } from './courseService';

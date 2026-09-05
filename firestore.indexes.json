@@ -24,13 +24,6 @@
         { "fieldPath": "courseId", "order": "ASCENDING" },
         { "fieldPath": "assessmentType", "order": "ASCENDING" }
       ]
-    },
-    {
-      "collectionGroup": "auditLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
-      ]
     }
   ],
   "fieldOverrides": []

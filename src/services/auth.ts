@@ -64,8 +64,14 @@ export async function logoutCoordinator(): Promise<void> {
   await signOut(auth);
 }
 
+import { syncAllToFirestore } from './syncService';
+
 export function subscribeToAuth(callback: (user: CoordinatorUser | null) => void): () => void {
   return onAuthStateChanged(auth, (user) => {
-    callback(mapFirebaseUser(user));
+    const mapped = mapFirebaseUser(user);
+    if (mapped) {
+      syncAllToFirestore().catch((err) => console.warn('Auto-sync error on auth:', err));
+    }
+    callback(mapped);
   });
 }

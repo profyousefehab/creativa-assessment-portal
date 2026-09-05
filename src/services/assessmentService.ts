@@ -4,6 +4,8 @@ import {
   getDocs,
   setDoc,
   onSnapshot,
+  query,
+  where,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Assessment, AssessmentType, AssessmentVersion, Question } from '../types';
@@ -33,7 +35,10 @@ export async function fetchAssessments(): Promise<Assessment[]> {
   try {
     const snap = await getDocs(collection(db, COLLECTION));
     if (!snap.empty) {
-      cachedAssessments = snap.docs.map((d) => d.data() as Assessment);
+      const remoteDocs = snap.docs.map((d) => d.data() as Assessment);
+      const remoteIds = new Set(remoteDocs.map((a) => a.id));
+      const localOnly = cachedAssessments.filter((a) => !remoteIds.has(a.id));
+      cachedAssessments = [...remoteDocs, ...localOnly];
       saveLocalCache(STORAGE_KEY, cachedAssessments);
       notifyDbChange();
     }
@@ -41,6 +46,62 @@ export async function fetchAssessments(): Promise<Assessment[]> {
     console.warn('Failed to fetch assessments from Firestore:', err);
   }
   return cachedAssessments;
+}
+
+export async function fetchAssessmentByToken(token: string): Promise<Assessment | null> {
+  const clean = token.trim();
+  const local = cachedAssessments.find((a) => a.publicToken === clean);
+  if (local) return sanitizeAssessmentForStudent(local);
+
+  try {
+    const q = query(collection(db, COLLECTION), where('publicToken', '==', clean));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      const asm = snap.docs[0].data() as Assessment;
+      const existingIdx = cachedAssessments.findIndex((a) => a.id === asm.id);
+      if (existingIdx >= 0) {
+        cachedAssessments[existingIdx] = asm;
+      } else {
+        cachedAssessments.push(asm);
+      }
+      saveLocalCache(STORAGE_KEY, cachedAssessments);
+      notifyDbChange();
+      return sanitizeAssessmentForStudent(asm);
+    }
+  } catch (err) {
+    console.warn('fetchAssessmentByToken Firestore error:', err);
+  }
+  return null;
+}
+
+export async function syncAssessmentsToFirestore(): Promise<number> {
+  let synced = 0;
+  try {
+    const snap = await getDocs(collection(db, COLLECTION));
+    const remoteDocsMap = new Map(snap.docs.map((d) => [d.id, d.data() as Assessment]));
+    for (const asm of cachedAssessments) {
+      const remote = remoteDocsMap.get(asm.id);
+      if (
+        !remote ||
+        (asm.status === 'PUBLISHED' && remote.status !== 'PUBLISHED') ||
+        (asm.questions?.length || 0) > (remote.questions?.length || 0)
+      ) {
+        await setDoc(doc(db, COLLECTION, asm.id), asm, { merge: true });
+        synced++;
+      }
+    }
+
+    const vSnap = await getDocs(collection(db, VERSIONS_COLLECTION));
+    const remoteVIds = new Set(vSnap.docs.map((d) => d.id));
+    for (const v of cachedVersions) {
+      if (!remoteVIds.has(v.id)) {
+        await setDoc(doc(db, VERSIONS_COLLECTION, v.id), v, { merge: true });
+      }
+    }
+  } catch (err) {
+    console.warn('syncAssessmentsToFirestore error:', err);
+  }
+  return synced;
 }
 
 
@@ -264,7 +325,10 @@ export function subscribeToAssessments(callback: (assessments: Assessment[]) => 
     collection(db, COLLECTION),
     (snap) => {
       if (!snap.empty) {
-        cachedAssessments = snap.docs.map((d) => d.data() as Assessment);
+        const remoteDocs = snap.docs.map((d) => d.data() as Assessment);
+        const remoteIds = new Set(remoteDocs.map((a) => a.id));
+        const localOnly = cachedAssessments.filter((a) => !remoteIds.has(a.id));
+        cachedAssessments = [...remoteDocs, ...localOnly];
         saveLocalCache(STORAGE_KEY, cachedAssessments);
       }
       callback(cachedAssessments);

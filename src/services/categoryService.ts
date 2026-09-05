@@ -37,19 +37,34 @@ export async function fetchCategories(): Promise<Category[]> {
     const q = query(collection(db, COLLECTION), orderBy('name', 'asc'));
     const snap = await getDocs(q);
     if (!snap.empty) {
-      cachedCategories = snap.docs.map((d) => d.data() as Category);
+      const remoteDocs = snap.docs.map((d) => d.data() as Category);
+      const remoteIds = new Set(remoteDocs.map((c) => c.id));
+      const localOnly = cachedCategories.filter((c) => !remoteIds.has(c.id));
+      cachedCategories = [...remoteDocs, ...localOnly];
       saveLocalCache(STORAGE_KEY, cachedCategories);
       notifyDbChange();
-    } else if (cachedCategories.length > 0) {
-      // Seed default categories into Firestore if empty
-      cachedCategories.forEach((cat) => {
-        setDoc(doc(db, COLLECTION, cat.id), cat).catch(() => {});
-      });
     }
   } catch (err) {
     console.warn('Failed to fetch categories from Firestore:', err);
   }
   return cachedCategories;
+}
+
+export async function syncCategoriesToFirestore(): Promise<number> {
+  let synced = 0;
+  try {
+    const snap = await getDocs(collection(db, COLLECTION));
+    const remoteIds = new Set(snap.docs.map((d) => d.id));
+    for (const cat of cachedCategories) {
+      if (!remoteIds.has(cat.id)) {
+        await setDoc(doc(db, COLLECTION, cat.id), cat, { merge: true });
+        synced++;
+      }
+    }
+  } catch (err) {
+    console.warn('syncCategoriesToFirestore error:', err);
+  }
+  return synced;
 }
 
 export function createCategory(name: string): Category {
@@ -106,7 +121,10 @@ export function subscribeToCategories(callback: (categories: Category[]) => void
     q,
     (snap) => {
       if (!snap.empty) {
-        cachedCategories = snap.docs.map((d) => d.data() as Category);
+        const remoteDocs = snap.docs.map((d) => d.data() as Category);
+        const remoteIds = new Set(remoteDocs.map((c) => c.id));
+        const localOnly = cachedCategories.filter((c) => !remoteIds.has(c.id));
+        cachedCategories = [...remoteDocs, ...localOnly];
         saveLocalCache(STORAGE_KEY, cachedCategories);
       }
       callback(cachedCategories);
