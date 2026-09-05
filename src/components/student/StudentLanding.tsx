@@ -13,6 +13,9 @@ import {
   Lock,
   ExternalLink,
   Shield,
+  Play,
+  FileText,
+  AlertTriangle,
 } from 'lucide-react';
 import { Assessment, Course, Student } from '../../types';
 import {
@@ -45,9 +48,12 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
   const [nationalId, setNationalId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showStartConfirmModal, setShowStartConfirmModal] = useState(false);
+  const [pendingStudent, setPendingStudent] = useState<Student | null>(null);
 
   const isPublished = assessment.status === 'PUBLISHED';
   const isPreTest = assessment.type === 'PRE_TEST';
+  const totalPoints = assessment.questions.reduce((sum, q) => sum + (q.points || 0), 0);
 
   const handleNationalIdBlur = () => {
     if (nationalId.trim().length >= 8) {
@@ -94,7 +100,7 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
         return;
       }
 
-      // 3. Check for existing active in-progress attempt to resume, or create new attempt
+      // 3. Check for existing active in-progress attempt to resume immediately
       const activeAttempt = getActiveAttemptForStudent(student.id, assessment.id);
       if (activeAttempt) {
         showToast('Resuming your active assessment session...', 'info');
@@ -102,12 +108,27 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
         return;
       }
 
-      // 4. Start fresh attempt with randomized questions & choices snapshot
-      const newAttempt = startStudentAttempt(student.id, assessment.id, course.id);
-      showToast('Assessment started. Good luck!', 'success');
-      onStartAttempt(newAttempt.id);
+      // 4. Per Section 11 Step 8: Prompt for explicit Start Confirmation before starting timer
+      setPendingStudent(student);
+      setShowStartConfirmModal(true);
     } catch (err: any) {
       setErrorMessage(err?.message || 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleConfirmStart = () => {
+    if (!pendingStudent) return;
+    setIsSubmitting(true);
+    try {
+      const newAttempt = startStudentAttempt(pendingStudent.id, assessment.id, course.id);
+      showToast('Assessment started. Good luck!', 'success');
+      setShowStartConfirmModal(false);
+      onStartAttempt(newAttempt.id);
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'An unexpected error occurred while starting.');
+      setShowStartConfirmModal(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -315,6 +336,94 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
       <footer className="max-w-md w-full mx-auto text-center pt-4 text-xs text-[#9e9e9e]">
         <span>Creativa Innovation Hub Aswan • Standard Assessment Framework</span>
       </footer>
+
+      {/* Start Confirmation Modal (Section 11 Step 8) */}
+      {showStartConfirmModal && pendingStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl max-w-md w-full p-6 sm:p-8 text-[#222222] animate-in zoom-in-95 space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center shrink-0">
+                <Play className="w-5 h-5 ml-0.5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-extrabold text-[#222222] tracking-tight">
+                  Ready to Start?
+                </h3>
+                <p className="text-xs text-[#616161]">
+                  Creativa Innovation Hub • Assessment Confirmation
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] space-y-2.5 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#616161]">Course:</span>
+                <span className="font-bold text-[#222222] text-right truncate max-w-[200px]">
+                  {course.name}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#616161]">Assessment:</span>
+                <span
+                  className={`px-2.5 py-0.5 rounded-full font-bold uppercase text-[10px] ${
+                    isPreTest ? 'bg-[#e6eff8] text-[#004e9e]' : 'bg-[#fef3e2] text-[#b45309]'
+                  }`}
+                >
+                  {isPreTest ? 'Pre-Test' : 'Post-Test'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#616161]">Duration:</span>
+                <span className="font-bold text-[#004e9e] flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  {assessment.durationMinutes} Minutes
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#616161]">Questions / Points:</span>
+                <span className="font-bold text-[#222222]">
+                  {assessment.questions.length} Questions ({totalPoints} Pts)
+                </span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-[#e5e5e5]">
+                <span className="text-[#616161]">Student:</span>
+                <span className="font-bold text-[#222222]">
+                  {pendingStudent.fullName}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-[#fef3e2] border border-[#f8af43]/30 text-[#b45309] text-xs space-y-1">
+              <div className="font-bold flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>Timer Notice</span>
+              </div>
+              <p className="leading-relaxed text-[11px]">
+                Once you click <strong>Begin Assessment</strong>, the {assessment.durationMinutes}-minute countdown begins immediately and cannot be paused. When time expires, your answers are automatically submitted.
+              </p>
+            </div>
+
+            <div className="pt-3 border-t border-[#e5e5e5] flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowStartConfirmModal(false)}
+                className="btn-pill-secondary py-2.5 px-5 text-xs font-bold"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={handleConfirmStart}
+                className="btn-pill-primary py-2.5 px-6 text-xs font-bold shadow-xs flex items-center gap-1.5"
+              >
+                <span>{isSubmitting ? 'Starting...' : 'Begin Assessment'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

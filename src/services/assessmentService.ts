@@ -59,6 +59,34 @@ export function getAssessmentByToken(token: string): Assessment | null {
 
 export const getAssessmentByPublicToken = getAssessmentByToken;
 
+/**
+ * Sanitizes an assessment by stripping the `isCorrect` choice flag.
+ * Ensures answer secrecy when questions are rendered on student devices (§33).
+ */
+export function sanitizeAssessmentForStudent(assessment: Assessment): Assessment {
+  return {
+    ...assessment,
+    questions: assessment.questions.map((q) => {
+      if (!q.choices || q.choices.length === 0) {
+        return { ...q };
+      }
+      return {
+        ...q,
+        choices: q.choices.map((c) => ({
+          id: c.id,
+          text: c.text,
+          isCorrect: false,
+        })),
+      };
+    }),
+  };
+}
+
+export function getStudentAssessmentByToken(token: string): Assessment | null {
+  const asm = getAssessmentByToken(token);
+  return asm ? sanitizeAssessmentForStudent(asm) : null;
+}
+
 export function createAssessmentForCourse(
   courseId: string,
   type: AssessmentType

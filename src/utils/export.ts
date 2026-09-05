@@ -1,19 +1,19 @@
 import { CourseResultRow } from '../types';
 
-export function exportToCSV(courseName: string, rows: CourseResultRow[]) {
-  const headers = [
-    'Name',
-    'Phone',
-    'Email',
-    'National ID',
-    'Pre Score',
-    'Post Score',
-    'Improvement',
-    'Pre Status',
-    'Post Status',
-    'Result Status',
-  ];
+export const CSV_HEADERS = [
+  'Name',
+  'Phone',
+  'Email',
+  'National ID',
+  'Pre Score',
+  'Post Score',
+  'Improvement',
+  'Pre Status',
+  'Post Status',
+  'Result Status',
+];
 
+export function generateCSVContent(rows: CourseResultRow[]): string {
   const csvRows = rows.map((r) => {
     const preScoreStr =
       r.preScore !== undefined && r.preMaxScore
@@ -44,7 +44,11 @@ export function exportToCSV(courseName: string, rows: CourseResultRow[]) {
     ].join(',');
   });
 
-  const csvContent = [headers.join(','), ...csvRows].join('\r\n');
+  return [CSV_HEADERS.join(','), ...csvRows].join('\r\n');
+}
+
+export function exportToCSV(courseName: string, rows: CourseResultRow[]) {
+  const csvContent = generateCSVContent(rows);
   const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -56,10 +60,7 @@ export function exportToCSV(courseName: string, rows: CourseResultRow[]) {
   document.body.removeChild(link);
 }
 
-export function exportToExcel(courseName: string, rows: CourseResultRow[]) {
-  // Generates an XML-based Excel (.xls) file that opens natively in Microsoft Excel without third-party heavy dependencies
-  const sanitizedName = courseName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-
+export function generateExcelXML(rows: CourseResultRow[]): string {
   const xmlHeader = `<?xml version="1.0"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
@@ -126,11 +127,16 @@ export function exportToExcel(courseName: string, rows: CourseResultRow[]) {
  </Worksheet>
 </Workbook>`;
 
-  const xml = xmlHeader + '\n' + xmlRows + '\n' + xmlFooter;
+  return xmlHeader + '\n' + xmlRows + '\n' + xmlFooter;
+}
+
+export function exportToExcel(courseName: string, rows: CourseResultRow[]) {
+  const xml = generateExcelXML(rows);
   const blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
+  const sanitizedName = courseName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
   link.setAttribute('download', `${sanitizedName}_results.xls`);
   document.body.appendChild(link);
   link.click();

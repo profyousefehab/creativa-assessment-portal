@@ -7,6 +7,7 @@ import {
   getAssessments,
   getCourses,
   subscribeToDb,
+  sanitizeAssessmentForStudent,
 } from '../../services/db';
 import { Assessment, Course, Attempt } from '../../types';
 import { StudentLanding } from './StudentLanding';
@@ -53,13 +54,13 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   const [allCourses, setAllCourses] = useState<Course[]>([]);
 
   const loadData = () => {
-    setAllAssessments(getAssessments());
+    setAllAssessments(getAssessments().map(sanitizeAssessmentForStudent));
     setAllCourses(getCourses(false));
 
     if (token) {
       const asm = getAssessmentByPublicToken(token);
       if (asm) {
-        setAssessment(asm);
+        setAssessment(sanitizeAssessmentForStudent(asm));
         const c = getCourseById(asm.courseId);
         setCourse(c || null);
       } else {

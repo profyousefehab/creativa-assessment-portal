@@ -44,18 +44,19 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
 
   const timerRef = useRef<any>(null);
 
-  // The randomized question order is preserved in attempt.randomizedQuestionIds
+  // The randomized question order is preserved in attempt.questionOrder
   const questions: Question[] = useMemo(() => {
     const map = new Map<string, Question>();
     assessment.questions.forEach((q) => map.set(q.id, q));
 
-    if (attempt.randomizedQuestionIds && attempt.randomizedQuestionIds.length > 0) {
-      return attempt.randomizedQuestionIds
-        .map((qid) => map.get(qid))
-        .filter((q): q is Question => Boolean(q));
+    const order = attempt.questionOrder || (attempt as any).randomizedQuestionIds;
+    if (order && order.length > 0) {
+      return order
+        .map((qid: string) => map.get(qid))
+        .filter((q: Question | undefined): q is Question => Boolean(q));
     }
     return assessment.questions;
-  }, [assessment, attempt.randomizedQuestionIds]);
+  }, [assessment, attempt.questionOrder, (attempt as any).randomizedQuestionIds]);
 
   const currentQuestion = questions[currentIndex];
 
@@ -64,13 +65,15 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
     if (!currentQuestion || currentQuestion.type === 'ESSAY' || !currentQuestion.choices) {
       return [];
     }
-    const order = attempt.randomizedChoiceOrders?.[currentQuestion.id];
+    const order =
+      attempt.choiceOrders?.[currentQuestion.id] ||
+      (attempt as any).randomizedChoiceOrders?.[currentQuestion.id];
     if (order && order.length > 0) {
       const choiceMap = new Map(currentQuestion.choices.map((c) => [c.id, c]));
       return order.map((cid) => choiceMap.get(cid)).filter(Boolean) as typeof currentQuestion.choices;
     }
     return currentQuestion.choices;
-  }, [currentQuestion, attempt.randomizedChoiceOrders]);
+  }, [currentQuestion, attempt.choiceOrders, (attempt as any).randomizedChoiceOrders]);
 
   // Current answer state for active question
   const currentAnswer = currentQuestion ? attempt.answers[currentQuestion.id] : undefined;
