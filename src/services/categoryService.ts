@@ -3,6 +3,7 @@ import {
   doc,
   getDocs,
   setDoc,
+  deleteDoc,
   onSnapshot,
   query,
   orderBy,
@@ -10,6 +11,7 @@ import {
 import { db } from './firebase';
 import { Category } from '../types';
 import { notifyDbChange, saveLocalCache, loadLocalCache } from './dbEvents';
+import { getCourses } from './courseService';
 
 const COLLECTION = 'categories';
 const STORAGE_KEY = 'creativa_categories_cache';
@@ -72,6 +74,32 @@ export function createCategory(name: string): Category {
   return newCat;
 }
 
+export function deleteCategory(id: string): { success: boolean; error?: string } {
+  const cat = cachedCategories.find((c) => c.id === id);
+  if (!cat) {
+    return { success: false, error: 'Category not found.' };
+  }
+
+  // Safety check: verify no courses are currently using this category
+  const assignedCourses = getCourses(true).filter((c) => c.categoryId === id);
+  if (assignedCourses.length > 0) {
+    return {
+      success: false,
+      error: `Cannot delete "${cat.name}" because it is currently assigned to ${assignedCourses.length} course(s). Please reassign or delete those courses first.`,
+    };
+  }
+
+  cachedCategories = cachedCategories.filter((c) => c.id !== id);
+  saveLocalCache(STORAGE_KEY, cachedCategories);
+  notifyDbChange();
+
+  deleteDoc(doc(db, COLLECTION, id)).catch((err) => {
+    console.error('Firestore deleteCategory error:', err);
+  });
+
+  return { success: true };
+}
+
 export function subscribeToCategories(callback: (categories: Category[]) => void): () => void {
   const q = query(collection(db, COLLECTION), orderBy('name', 'asc'));
   return onSnapshot(
@@ -90,4 +118,5 @@ export function subscribeToCategories(callback: (categories: Category[]) => void
     }
   );
 }
+
 

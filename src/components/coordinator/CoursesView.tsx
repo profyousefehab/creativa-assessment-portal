@@ -11,16 +11,19 @@ import {
   Sparkles,
   X,
   Check,
+  Trash2,
 } from 'lucide-react';
 import {
   getCourses,
   getCategories,
   createCourse,
   createCategory,
+  deleteCategory,
   archiveCourse,
   getAssessmentsForCourse,
   subscribeToDb,
 } from '../../services/db';
+
 import { Course, Category, Assessment } from '../../types';
 import { showToast } from '../common/Toast';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -51,6 +54,10 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
 
   // Archive confirmation
   const [courseToArchive, setCourseToArchive] = useState<Course | null>(null);
+
+  // Category deletion confirmation
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+
 
   const refresh = () => {
     const list = getCourses(false);
@@ -104,6 +111,22 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
     setNewCatName('');
     setCategoryId(cat.id);
   };
+
+  const handleConfirmDeleteCategory = () => {
+    if (!categoryToDelete) return;
+    const res = deleteCategory(categoryToDelete.id);
+    if (res.success) {
+      showToast(`Category "${categoryToDelete.name}" deleted successfully.`, 'success');
+      if (categoryId === categoryToDelete.id) {
+        const remaining = categories.filter((c) => c.id !== categoryToDelete.id);
+        setCategoryId(remaining[0]?.id || '');
+      }
+    } else {
+      showToast(res.error || 'Failed to delete category.', 'error');
+    }
+    setCategoryToDelete(null);
+  };
+
 
   const handleConfirmArchive = () => {
     if (!courseToArchive) return;
@@ -432,10 +455,22 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
               {categories.map((c) => (
                 <div
                   key={c.id}
-                  className="flex items-center justify-between px-4 py-2.5 rounded-full bg-[#fafafa] border border-[#e5e5e5] text-sm font-medium text-[#222222]"
+                  className="flex items-center justify-between px-4 py-2.5 rounded-full bg-[#fafafa] border border-[#e5e5e5] text-sm font-medium text-[#222222] hover:border-[#004e9e]/30 transition-colors group"
                 >
-                  <span>{c.name}</span>
-                  <span className="text-[11px] text-[#004e9e] font-semibold bg-[#e6eff8] px-2.5 py-0.5 rounded-full">Active</span>
+                  <span className="truncate mr-2">{c.name}</span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[11px] text-[#004e9e] font-semibold bg-[#e6eff8] px-2.5 py-0.5 rounded-full">
+                      Active
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setCategoryToDelete(c)}
+                      title={`Delete "${c.name}" category`}
+                      className="p-1 text-[#9e9e9e] hover:text-[#e53935] hover:bg-red-50 rounded-full transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -453,6 +488,17 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
         </div>
       )}
 
+      {/* Category Deletion Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(categoryToDelete)}
+        title="Delete Category?"
+        message={`Are you sure you want to delete "${categoryToDelete?.name}"? You can only delete categories that are not currently assigned to any courses.`}
+        confirmText="Delete Category"
+        isDestructive={true}
+        onConfirm={handleConfirmDeleteCategory}
+        onCancel={() => setCategoryToDelete(null)}
+      />
+
       {/* Soft Archive Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(courseToArchive)}
@@ -466,3 +512,4 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
     </div>
   );
 };
+
