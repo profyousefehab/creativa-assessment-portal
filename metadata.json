@@ -1,0 +1,6 @@
+{
+  "name": "Creativa Assessment Portal",
+  "description": "Pre-Test and Post-Test assessment platform for Creativa Innovation Hub Aswan with Coordinator dashboard and QR-based student assessment portal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

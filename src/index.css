@@ -1,0 +1,314 @@
+@import "tailwindcss";
+
+/* -------------------------------------------------------------------------
+   Creativa Design System - Dual-Font Typography Setup
+   - English / Application UI: Bricolage Grotesque
+   - Arabic / RTL Text: Thmanyah Sans
+   ------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/Fonts/BricolageGrotesque.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/Fonts/thmanyahsans-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/Fonts/thmanyahsans-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/Fonts/thmanyahsans-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/Fonts/thmanyahsans-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/Fonts/thmanyahsans-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* -------------------------------------------------------------------------
+   Tailwind v4 Theme Definition & Design Tokens
+   ------------------------------------------------------------------------- */
+@theme {
+  --font-sans: 'Bricolage Grotesque', 'Thmanyah Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-arabic: 'Thmanyah Sans', 'Bricolage Grotesque', sans-serif;
+
+  /* Creativa Brand Palette */
+  --color-primary: #004e9e;
+  --color-primary-dark: #003b78;
+  --color-primary-light: #e6eff8;
+  --color-accent-gold: #f8af43;
+  --color-accent-gold-dark: #e59d30;
+  --color-accent-gold-light: #fef3e2;
+
+  /* Neutrals & Surfaces */
+  --color-charcoal: #222222;
+  --color-body: #616161;
+  --color-mute: #9e9e9e;
+  --color-surface-soft: #fafafa;
+  --color-hairline: #e5e5e5;
+  --color-hairline-strong: #d4d4d4;
+
+  /* Semantic Status */
+  --color-success: #10b981;
+  --color-success-soft: #ecfdf5;
+  --color-success-border: #a7f3d0;
+  --color-success-text: #047857;
+
+  --color-warning: #f59e0b;
+  --color-warning-soft: #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-warning-text: #b45309;
+
+  --color-error: #ef4444;
+  --color-error-soft: #fef2f2;
+  --color-error-border: #fecaca;
+  --color-error-text: #b91c1c;
+}
+
+/* -------------------------------------------------------------------------
+   Global Base & Typography
+   ------------------------------------------------------------------------- */
+html {
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+  background-color: #fafafa;
+  color: #222222;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #fafafa;
+  color: #222222;
+  font-family: 'Bricolage Grotesque', 'Thmanyah Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Arabic Language Support */
+[lang="ar"],
+.font-arabic,
+[dir="rtl"] {
+  font-family: 'Thmanyah Sans', sans-serif !important;
+}
+
+/* -------------------------------------------------------------------------
+   Component Primitive Classes (DESIGN.md Spec)
+   ------------------------------------------------------------------------- */
+
+/* Flat Paper Cards with 1px Hairlines */
+.paper-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 1rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.paper-card:hover {
+  border-color: #d4d4d4;
+}
+
+/* Inverted Dark Surface Card */
+.card-inverted {
+  background-color: #004e9e;
+  color: #ffffff;
+  border: 1px solid #003b78;
+  border-radius: 1rem;
+}
+
+/* Pill Interactive Elements */
+.btn-pill-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #004e9e;
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  transition: all 0.15s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-pill-primary:hover {
+  background-color: #003b78;
+}
+
+.btn-pill-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-pill-primary:focus-visible {
+  outline: 2px solid #004e9e;
+  outline-offset: 2px;
+}
+
+.btn-pill-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  color: #004e9e;
+  border: 1px solid #e5e5e5;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.btn-pill-secondary:hover {
+  background-color: #fafafa;
+  border-color: #004e9e;
+}
+
+.btn-pill-secondary:active {
+  transform: scale(0.98);
+}
+
+.btn-pill-secondary:focus-visible {
+  outline: 2px solid #004e9e;
+  outline-offset: 2px;
+}
+
+.btn-pill-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #f8af43;
+  color: #222222;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  transition: all 0.15s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-pill-accent:hover {
+  background-color: #e59d30;
+}
+
+.btn-pill-accent:active {
+  transform: scale(0.98);
+}
+
+.btn-pill-accent:focus-visible {
+  outline: 2px solid #f8af43;
+  outline-offset: 2px;
+}
+
+.input-pill {
+  width: 100%;
+  background-color: #ffffff;
+  color: #222222;
+  border: 1px solid #e5e5e5;
+  border-radius: 9999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-pill:focus {
+  outline: none;
+  border-color: #004e9e;
+  box-shadow: 0 0 0 2px rgba(0, 78, 158, 0.15);
+}
+
+.input-pill::placeholder {
+  color: #9e9e9e;
+}
+
+/* Nav Pill Containers */
+.nav-pill-container {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fafafa;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid #e5e5e5;
+  gap: 0.25rem;
+}
+
+.nav-pill-active {
+  background-color: #004e9e;
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.nav-pill-inactive {
+  background-color: transparent;
+  color: #616161;
+  border-radius: 9999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.nav-pill-inactive:hover {
+  color: #004e9e;
+  background-color: #ffffff;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9e9e9e;
+}

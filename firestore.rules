@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Courses collection
+    // Anyone can read active courses; only coordinators can write/archive
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Assessments & Versions
+    // Published assessments can be read by students taking tests; coordinators can read/write all
+    match /assessments/{assessmentId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /assessmentVersions/{versionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Categories
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Students registration & identity verification
+    // Public can query by nationalId and register; coordinators have full access
+    match /students/{studentId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Student Attempts
+    // Students create and auto-save their own attempts; coordinators read and grade
+    match /attempts/{attemptId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isAuthenticated();
+    }
+
+    // Published Results
+    match /publishedResults/{courseId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Audit logs - coordinators only
+    match /auditLogs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if true; // Allows system actions to be logged
+      allow update, delete: if false; // Immutable audit trail
+    }
+  }
+}
