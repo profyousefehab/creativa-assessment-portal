@@ -6,9 +6,12 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Student } from '../types';
+import { notifyDbChange, saveLocalCache, loadLocalCache } from './dbEvents';
 
 const COLLECTION = 'students';
-let cachedStudents: Student[] = [];
+const STORAGE_KEY = 'creativa_students_cache';
+
+let cachedStudents: Student[] = loadLocalCache<Student[]>(STORAGE_KEY, []);
 
 export function getStudents(): Student[] {
   return cachedStudents;
@@ -30,12 +33,15 @@ export async function fetchStudents(): Promise<Student[]> {
     const snap = await getDocs(collection(db, COLLECTION));
     if (!snap.empty) {
       cachedStudents = snap.docs.map((d) => d.data() as Student);
+      saveLocalCache(STORAGE_KEY, cachedStudents);
+      notifyDbChange();
     }
   } catch (err) {
     console.warn('Failed to fetch students from Firestore:', err);
   }
   return cachedStudents;
 }
+
 
 export function verifyOrCreateStudent(data: {
   fullName: string;
@@ -85,6 +91,8 @@ export function verifyOrCreateStudent(data: {
   };
 
   cachedStudents.push(newStudent);
+  saveLocalCache(STORAGE_KEY, cachedStudents);
+  notifyDbChange();
 
   setDoc(doc(db, COLLECTION, newStudent.id), newStudent).catch((err) => {
     console.error('Firestore create student error:', err);
@@ -92,6 +100,7 @@ export function verifyOrCreateStudent(data: {
 
   return { student: newStudent, error: null };
 }
+
 
 export function createOrUpdateStudent(data: {
   fullName: string;

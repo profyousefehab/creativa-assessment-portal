@@ -7,9 +7,11 @@ import { getCourses, getCachedCourses } from './courseService';
 import { getAssessments, getCachedAssessments, getAssessmentById } from './assessmentService';
 import { calculateAttemptTotal } from '../utils/scoring';
 import { logAuditAction } from './auditService';
+import { notifyDbChange } from './dbEvents';
 
 const PUBLISHED_COLLECTION = 'publishedResults';
 let publishedMap: Record<string, boolean> = {};
+
 
 export async function gradeEssayAnswer(
   attemptId: string,
@@ -62,8 +64,10 @@ export async function gradeEssayAnswer(
     maxPoints: question.points,
   });
 
+  notifyDbChange();
   return true;
 }
+
 
 export function getPendingEssayReviews(): {
   attempt: Attempt;
@@ -133,5 +137,7 @@ export async function publishCourseResults(courseId: string): Promise<boolean> {
   }
 
   logAuditAction('RESULT_PUBLISHED', 'Result', courseId, { courseId });
+  notifyDbChange();
   return true;
 }
+

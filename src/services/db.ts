@@ -3,6 +3,7 @@
 
 export * from './firebase';
 export * from './auth';
+export * from './dbEvents';
 export * from './categoryService';
 export * from './courseService';
 export * from './assessmentService';
@@ -13,12 +14,13 @@ export * from './analyticsService';
 export * from './auditService';
 export { clearAllFirestoreData } from '../scripts/clearFirestore';
 
-import { fetchCourses } from './courseService';
-import { fetchAssessments } from './assessmentService';
+import { fetchCourses, subscribeToCourses } from './courseService';
+import { fetchAssessments, subscribeToAssessments } from './assessmentService';
 import { fetchStudents } from './studentService';
 import { fetchAttempts } from './attemptService';
-import { fetchCategories } from './categoryService';
+import { fetchCategories, subscribeToCategories } from './categoryService';
 import { fetchAuditLogs } from './auditService';
+import { notifyDbChange } from './dbEvents';
 
 // Legacy keys to clean up so old browser mock sessions do not linger
 const LEGACY_STORAGE_KEYS = [
@@ -32,25 +34,7 @@ const LEGACY_STORAGE_KEYS = [
   'creativa_published_results_v1',
 ];
 
-// Event target for reactive updates
-const dbEventTarget = new EventTarget();
-export const DB_CHANGE_EVENT = 'creativa_db_change';
-
-export function notifyDbChange() {
-  dbEventTarget.dispatchEvent(new Event(DB_CHANGE_EVENT));
-}
-
-export function subscribeToDb(callback: () => void): () => void {
-  const handler = () => callback();
-  dbEventTarget.addEventListener(DB_CHANGE_EVENT, handler);
-  window.addEventListener('storage', handler);
-  return () => {
-    dbEventTarget.removeEventListener(DB_CHANGE_EVENT, handler);
-    window.removeEventListener('storage', handler);
-  };
-}
-
-// Global initialization: cleans legacy local storage and loads real Firestore data
+// Global initialization: cleans legacy local storage, initializes cache, and connects realtime listeners
 let isInitialized = false;
 
 export async function initializeDatabase(): Promise<void> {
@@ -58,14 +42,19 @@ export async function initializeDatabase(): Promise<void> {
   isInitialized = true;
 
   try {
-    // Purge legacy local mock cache keys if present
+    // Purge obsolete legacy mock keys
     LEGACY_STORAGE_KEYS.forEach((key) => {
       try {
         localStorage.removeItem(key);
       } catch (_) {}
     });
 
-    // Fetch genuine data from Firestore
+    // Wire realtime listeners to keep data in sync automatically
+    subscribeToCategories(() => {});
+    subscribeToCourses(() => {}, true);
+    subscribeToAssessments(() => {});
+
+    // Initial fetch from Firestore
     await Promise.allSettled([
       fetchCategories(),
       fetchCourses(true),
@@ -80,3 +69,4 @@ export async function initializeDatabase(): Promise<void> {
     console.warn('Database initialization warning:', err);
   }
 }
+

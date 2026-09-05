@@ -9,9 +9,20 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Category } from '../types';
+import { notifyDbChange, saveLocalCache, loadLocalCache } from './dbEvents';
 
 const COLLECTION = 'categories';
-let cachedCategories: Category[] = [];
+const STORAGE_KEY = 'creativa_categories_cache';
+
+const DEFAULT_CATEGORIES: Category[] = [
+  { id: 'cat_web_dev', name: 'Web Development', createdAt: new Date().toISOString() },
+  { id: 'cat_ai_data', name: 'AI & Data Science', createdAt: new Date().toISOString() },
+  { id: 'cat_mobile_dev', name: 'Mobile App Development', createdAt: new Date().toISOString() },
+  { id: 'cat_cyber_sec', name: 'Cybersecurity & Networks', createdAt: new Date().toISOString() },
+  { id: 'cat_digital_mkt', name: 'Digital Marketing & Business', createdAt: new Date().toISOString() },
+];
+
+let cachedCategories: Category[] = loadLocalCache<Category[]>(STORAGE_KEY, DEFAULT_CATEGORIES);
 
 export function getCategories(): Category[] {
   return cachedCategories;
@@ -25,6 +36,13 @@ export async function fetchCategories(): Promise<Category[]> {
     const snap = await getDocs(q);
     if (!snap.empty) {
       cachedCategories = snap.docs.map((d) => d.data() as Category);
+      saveLocalCache(STORAGE_KEY, cachedCategories);
+      notifyDbChange();
+    } else if (cachedCategories.length > 0) {
+      // Seed default categories into Firestore if empty
+      cachedCategories.forEach((cat) => {
+        setDoc(doc(db, COLLECTION, cat.id), cat).catch(() => {});
+      });
     }
   } catch (err) {
     console.warn('Failed to fetch categories from Firestore:', err);
@@ -44,6 +62,8 @@ export function createCategory(name: string): Category {
   };
 
   cachedCategories.push(newCat);
+  saveLocalCache(STORAGE_KEY, cachedCategories);
+  notifyDbChange();
 
   setDoc(doc(db, COLLECTION, newCat.id), newCat).catch((err) => {
     console.error('Firestore createCategory error:', err);
@@ -59,8 +79,10 @@ export function subscribeToCategories(callback: (categories: Category[]) => void
     (snap) => {
       if (!snap.empty) {
         cachedCategories = snap.docs.map((d) => d.data() as Category);
+        saveLocalCache(STORAGE_KEY, cachedCategories);
       }
       callback(cachedCategories);
+      notifyDbChange();
     },
     (err) => {
       console.warn('subscribeToCategories listener error:', err);
@@ -68,3 +90,4 @@ export function subscribeToCategories(callback: (categories: Category[]) => void
     }
   );
 }
+

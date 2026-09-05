@@ -12,9 +12,12 @@ import { getAssessmentById } from './assessmentService';
 import { getStudents } from './studentService';
 import { calculateAttemptTotal } from '../utils/scoring';
 import { logAuditAction } from './auditService';
+import { notifyDbChange, saveLocalCache, loadLocalCache } from './dbEvents';
 
 const COLLECTION = 'attempts';
-let cachedAttempts: Attempt[] = [];
+const STORAGE_KEY = 'creativa_attempts_cache';
+
+let cachedAttempts: Attempt[] = loadLocalCache<Attempt[]>(STORAGE_KEY, []);
 
 function shuffleArray<T>(array: T[]): T[] {
   const result = [...array];
@@ -36,12 +39,15 @@ export async function fetchAttempts(): Promise<Attempt[]> {
     const snap = await getDocs(collection(db, COLLECTION));
     if (!snap.empty) {
       cachedAttempts = snap.docs.map((d) => d.data() as Attempt);
+      saveLocalCache(STORAGE_KEY, cachedAttempts);
+      notifyDbChange();
     }
   } catch (err) {
     console.warn('Failed to fetch attempts from Firestore:', err);
   }
   return cachedAttempts;
 }
+
 
 export function getAttemptById(attemptId: string): Attempt | null {
   return cachedAttempts.find((a) => a.id === attemptId) || null;
@@ -178,6 +184,8 @@ export function startStudentAttempt(
   };
 
   cachedAttempts.push(newAttempt);
+  saveLocalCache(STORAGE_KEY, cachedAttempts);
+  notifyDbChange();
 
   setDoc(doc(db, COLLECTION, newAttempt.id), newAttempt).catch((err) => {
     console.error('Firestore create attempt error:', err);
@@ -268,6 +276,9 @@ export function submitStudentAttempt(
     console.error('Firestore submitStudentAttempt error:', err);
   });
 
+  saveLocalCache(STORAGE_KEY, cachedAttempts);
+  notifyDbChange();
+
   return { success: true };
 }
 
@@ -312,10 +323,13 @@ export function resetStudentAttempt(attemptId: string): Attempt | null {
   };
 
   cachedAttempts.push(newAttempt);
+  saveLocalCache(STORAGE_KEY, cachedAttempts);
+  notifyDbChange();
 
   setDoc(doc(db, COLLECTION, newAttempt.id), newAttempt).catch((err) => {
     console.error('Firestore resetStudentAttempt error:', err);
   });
+
 
   logAuditAction('ATTEMPT_RESET', 'Attempt', oldAttempt.id, {
     studentId: oldAttempt.studentId,

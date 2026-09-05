@@ -8,12 +8,15 @@ import {
 import { db } from './firebase';
 import { Assessment, AssessmentType, AssessmentVersion, Question } from '../types';
 import { logAuditAction } from './auditService';
+import { notifyDbChange, saveLocalCache, loadLocalCache } from './dbEvents';
 
 const COLLECTION = 'assessments';
 const VERSIONS_COLLECTION = 'assessmentVersions';
+const STORAGE_KEY = 'creativa_assessments_cache';
+const VERSIONS_STORAGE_KEY = 'creativa_versions_cache';
 
-let cachedAssessments: Assessment[] = [];
-let cachedVersions: AssessmentVersion[] = [];
+let cachedAssessments: Assessment[] = loadLocalCache<Assessment[]>(STORAGE_KEY, []);
+let cachedVersions: AssessmentVersion[] = loadLocalCache<AssessmentVersion[]>(VERSIONS_STORAGE_KEY, []);
 
 function generateSecureToken(prefix: string): string {
   const randomChars = Math.random().toString(36).substring(2, 8) + Date.now().toString(36).substring(4);
@@ -31,12 +34,15 @@ export async function fetchAssessments(): Promise<Assessment[]> {
     const snap = await getDocs(collection(db, COLLECTION));
     if (!snap.empty) {
       cachedAssessments = snap.docs.map((d) => d.data() as Assessment);
+      saveLocalCache(STORAGE_KEY, cachedAssessments);
+      notifyDbChange();
     }
   } catch (err) {
     console.warn('Failed to fetch assessments from Firestore:', err);
   }
   return cachedAssessments;
 }
+
 
 export function getAssessmentsForCourse(courseId: string): {
   preTest: Assessment | null;
@@ -109,6 +115,8 @@ export function createAssessmentForCourse(
   };
 
   cachedAssessments.push(newAssessment);
+  saveLocalCache(STORAGE_KEY, cachedAssessments);
+  notifyDbChange();
 
   setDoc(doc(db, COLLECTION, newAssessment.id), newAssessment).catch((err) => {
     console.error('Firestore createAssessmentForCourse error:', err);
@@ -146,6 +154,8 @@ export function updateAssessment(
   };
 
   cachedAssessments[index] = updated;
+  saveLocalCache(STORAGE_KEY, cachedAssessments);
+  notifyDbChange();
 
   setDoc(doc(db, COLLECTION, id), updated, { merge: true }).catch((err) => {
     console.error('Firestore updateAssessment error:', err);
@@ -180,6 +190,8 @@ export function setAssessmentStatus(
   };
 
   cachedAssessments[index] = updated;
+  saveLocalCache(STORAGE_KEY, cachedAssessments);
+  notifyDbChange();
 
   setDoc(doc(db, COLLECTION, id), updated, { merge: true }).catch((err) => {
     console.error('Firestore setAssessmentStatus error:', err);
@@ -216,6 +228,8 @@ export function saveAssessmentVersionSnapshot(assessment: Assessment): void {
   if (idx >= 0) cachedVersions[idx] = snapshot;
   else cachedVersions.push(snapshot);
 
+  saveLocalCache(VERSIONS_STORAGE_KEY, cachedVersions);
+
   setDoc(doc(db, VERSIONS_COLLECTION, snapshot.id), snapshot).catch((err) => {
     console.error('Firestore saveAssessmentVersionSnapshot error:', err);
   });
@@ -251,8 +265,10 @@ export function subscribeToAssessments(callback: (assessments: Assessment[]) => 
     (snap) => {
       if (!snap.empty) {
         cachedAssessments = snap.docs.map((d) => d.data() as Assessment);
+        saveLocalCache(STORAGE_KEY, cachedAssessments);
       }
       callback(cachedAssessments);
+      notifyDbChange();
     },
     (err) => {
       console.warn('subscribeToAssessments listener error:', err);

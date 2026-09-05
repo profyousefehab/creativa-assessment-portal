@@ -12,9 +12,12 @@ import { db } from './firebase';
 import { Course } from '../types';
 import { createAssessmentForCourse } from './assessmentService';
 import { logAuditAction } from './auditService';
+import { notifyDbChange, saveLocalCache, loadLocalCache } from './dbEvents';
 
 const COLLECTION = 'courses';
-let cachedCourses: Course[] = [];
+const STORAGE_KEY = 'creativa_courses_cache';
+
+let cachedCourses: Course[] = loadLocalCache<Course[]>(STORAGE_KEY, []);
 
 export function getCourses(includeArchived = false): Course[] {
   if (includeArchived) return cachedCourses;
@@ -37,6 +40,8 @@ export async function fetchCourses(includeArchived = false): Promise<Course[]> {
     const snap = await getDocs(q);
     if (!snap.empty) {
       cachedCourses = snap.docs.map((d) => d.data() as Course);
+      saveLocalCache(STORAGE_KEY, cachedCourses);
+      notifyDbChange();
     }
   } catch (err) {
     console.warn('Failed to fetch courses from Firestore:', err);
@@ -65,14 +70,17 @@ export function createCourse(data: {
   };
 
   cachedCourses.unshift(newCourse);
-
-  setDoc(doc(db, COLLECTION, newCourse.id), newCourse).catch((err) => {
-    console.error('Firestore createCourse error:', err);
-  });
+  saveLocalCache(STORAGE_KEY, cachedCourses);
 
   // Automatically create the 1 Pre-Test and 1 Post-Test for this course
   createAssessmentForCourse(newCourse.id, 'PRE_TEST');
   createAssessmentForCourse(newCourse.id, 'POST_TEST');
+
+  notifyDbChange();
+
+  setDoc(doc(db, COLLECTION, newCourse.id), newCourse).catch((err) => {
+    console.error('Firestore createCourse error:', err);
+  });
 
   logAuditAction('COURSE_CREATED', 'Course', newCourse.id, { name: newCourse.name });
   return newCourse;
@@ -87,6 +95,8 @@ export function updateCourse(
 
   if (course) {
     Object.assign(course, data, { updatedAt });
+    saveLocalCache(STORAGE_KEY, cachedCourses);
+    notifyDbChange();
   }
 
   updateDoc(doc(db, COLLECTION, id), {
@@ -109,6 +119,8 @@ export function archiveCourse(id: string): boolean {
     course.isArchived = true;
     course.archivedAt = archivedAt;
     course.updatedAt = updatedAt;
+    saveLocalCache(STORAGE_KEY, cachedCourses);
+    notifyDbChange();
   }
 
   updateDoc(doc(db, COLLECTION, id), {
@@ -131,6 +143,8 @@ export function restoreCourse(id: string): boolean {
     course.isArchived = false;
     course.archivedAt = undefined;
     course.updatedAt = updatedAt;
+    saveLocalCache(STORAGE_KEY, cachedCourses);
+    notifyDbChange();
   }
 
   updateDoc(doc(db, COLLECTION, id), {
@@ -155,8 +169,10 @@ export function subscribeToCourses(
     (snap) => {
       if (!snap.empty) {
         cachedCourses = snap.docs.map((d) => d.data() as Course);
+        saveLocalCache(STORAGE_KEY, cachedCourses);
       }
       callback(includeArchived ? cachedCourses : cachedCourses.filter((c) => !c.isArchived));
+      notifyDbChange();
     },
     (err) => {
       console.warn('subscribeToCourses listener error:', err);
