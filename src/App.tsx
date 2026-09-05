@@ -33,9 +33,15 @@ export default function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const initialToken = urlParams.get('token');
 
-  const [isStudentPortalActive, setIsStudentPortalActive] = useState<boolean>(
-    Boolean(initialToken)
-  );
+  // Check if coordinator route was explicitly entered (e.g. /admin)
+  const isExplicitAdminRoute =
+    window.location.pathname === '/admin' ||
+    window.location.pathname.startsWith('/admin') ||
+    window.location.hash === '#admin';
+
+  // The root route "/" is STUDENT-FIRST by default.
+  // Coordinator mode is only active if explicitly navigated to /admin or clicked "Coordinator Login".
+  const [isCoordinatorActive, setIsCoordinatorActive] = useState<boolean>(isExplicitAdminRoute);
   const [studentToken, setStudentToken] = useState<string>(initialToken || '');
 
   // Coordinator state
@@ -71,53 +77,7 @@ export default function App() {
     };
   }, []);
 
-  // If student portal is explicitly requested
-  if (isStudentPortalActive) {
-    return (
-      <>
-        <StudentPortal
-          initialToken={studentToken}
-          onSwitchToCoordinator={() => {
-            setIsStudentPortalActive(false);
-            setStudentToken('');
-            // Clear url params without full reload
-            if (window.history.pushState) {
-              const newurl =
-                window.location.protocol +
-                '//' +
-                window.location.host +
-                window.location.pathname;
-              window.history.pushState({ path: newurl }, '', newurl);
-            }
-          }}
-        />
-        <ToastContainer />
-      </>
-    );
-  }
-
-  // If coordinator is not logged in -> Show Login
-  if (!session) {
-    return (
-      <>
-        <LoginView
-          onLoginSuccess={() => setSession(getCoordinatorSession())}
-          onOpenStudentPortal={() => setIsStudentPortalActive(true)}
-        />
-        <ToastContainer />
-      </>
-    );
-  }
-
-  // Active assessment for preview
-  const previewAssessment = previewAssessmentId
-    ? getAssessmentById(previewAssessmentId)
-    : null;
-  const previewCourse = previewAssessment
-    ? getCourseById(previewAssessment.courseId)
-    : null;
-
-  // Handlers
+  // Handlers for coordinator portal
   const handleOpenQR = (course: Course, assessment: Assessment) => {
     setQrModalData({ course, assessment });
   };
@@ -135,97 +95,142 @@ export default function App() {
     setEditingAssessmentId(null);
   };
 
+  // Active assessment for preview
+  const previewAssessment = previewAssessmentId
+    ? getAssessmentById(previewAssessmentId)
+    : null;
+  const previewCourse = previewAssessment
+    ? getCourseById(previewAssessment.courseId)
+    : null;
+
+  // 1. If Coordinator mode is active (via /admin or clicking "Coordinator Login")
+  if (isCoordinatorActive) {
+    // If coordinator is not logged in -> Show Login
+    if (!session) {
+      return (
+        <>
+          <LoginView
+            onLoginSuccess={() => setSession(getCoordinatorSession())}
+            onOpenStudentPortal={() => {
+              setIsCoordinatorActive(false);
+              setStudentToken('');
+            }}
+          />
+          <ToastContainer />
+        </>
+      );
+    }
+
+    // If coordinator is logged in -> Show Coordinator Portal
+    return (
+      <>
+        <CoordinatorLayout
+          currentTab={currentTab}
+          onSelectTab={handleTabChange}
+          onOpenAuditLog={() => setIsAuditLogOpen(true)}
+          onOpenStudentDemo={() => {
+            setIsCoordinatorActive(false);
+            setStudentToken('');
+          }}
+          onLogout={() => {
+            setSession(null);
+            setIsCoordinatorActive(false);
+            setSelectedCourseId(null);
+            setEditingAssessmentId(null);
+          }}
+        >
+          {/* If editing an assessment inside assessment builder */}
+          {editingAssessmentId ? (
+            <AssessmentBuilder
+              assessmentId={editingAssessmentId}
+              onBack={() => setEditingAssessmentId(null)}
+              onPreview={(asmId) => setPreviewAssessmentId(asmId)}
+            />
+          ) : selectedCourseId ? (
+            /* If drilled down into a specific course detail */
+            <CourseDetailView
+              courseId={selectedCourseId}
+              onBack={() => setSelectedCourseId(null)}
+              onOpenAssessmentBuilder={(asmId) => setEditingAssessmentId(asmId)}
+              onOpenQR={handleOpenQR}
+              onPreviewAssessment={(asmId) => setPreviewAssessmentId(asmId)}
+              onSelectAttemptDetails={(attId) => setSelectedAttemptId(attId)}
+            />
+          ) : currentTab === 'dashboard' ? (
+            <DashboardView
+              onNavigateCourse={(cId) => {
+                setSelectedCourseId(cId);
+                setCurrentTab('courses');
+              }}
+              onNavigateNewCourse={() => {
+                setCurrentTab('courses');
+              }}
+              onNavigateEssays={() => {
+                setCurrentTab('essays');
+              }}
+              onOpenQR={handleOpenQR}
+            />
+          ) : currentTab === 'courses' ? (
+            <CoursesView
+              onNavigateCourse={handleNavigateCourse}
+              onOpenQR={handleOpenQR}
+            />
+          ) : currentTab === 'categories' ? (
+            <CoursesView
+              onNavigateCourse={handleNavigateCourse}
+              onOpenQR={handleOpenQR}
+            />
+          ) : currentTab === 'essays' ? (
+            <EssayReviewView />
+          ) : currentTab === 'archived' ? (
+            <ArchivedCoursesView onNavigateCourse={handleNavigateCourse} />
+          ) : null}
+        </CoordinatorLayout>
+
+        {/* Global Modals */}
+        <AuditLogModal
+          isOpen={isAuditLogOpen}
+          onClose={() => setIsAuditLogOpen(false)}
+        />
+
+        <QRCodeModal
+          isOpen={Boolean(qrModalData)}
+          onClose={() => setQrModalData(null)}
+          course={qrModalData?.course || null}
+          assessment={qrModalData?.assessment || null}
+          onOpenStudentView={(token) => {
+            setQrModalData(null);
+            setStudentToken(token);
+            setIsCoordinatorActive(false);
+          }}
+        />
+
+        <AssessmentPreviewModal
+          isOpen={Boolean(previewAssessmentId)}
+          onClose={() => setPreviewAssessmentId(null)}
+          assessment={previewAssessment}
+          courseName={previewCourse?.name}
+        />
+
+        <AttemptDetailModal
+          attemptId={selectedAttemptId}
+          onClose={() => setSelectedAttemptId(null)}
+        />
+
+        <ToastContainer />
+      </>
+    );
+  }
+
+  // 2. DEFAULT EXPERIENCE: Student-First Portal at "/"
   return (
     <>
-      <CoordinatorLayout
-        currentTab={currentTab}
-        onSelectTab={handleTabChange}
-        onOpenAuditLog={() => setIsAuditLogOpen(true)}
-        onOpenStudentDemo={() => setIsStudentPortalActive(true)}
-        onLogout={() => {
-          setSession(null);
-          setSelectedCourseId(null);
-          setEditingAssessmentId(null);
-        }}
-      >
-        {/* If editing an assessment inside assessment builder */}
-        {editingAssessmentId ? (
-          <AssessmentBuilder
-            assessmentId={editingAssessmentId}
-            onBack={() => setEditingAssessmentId(null)}
-            onPreview={(asmId) => setPreviewAssessmentId(asmId)}
-          />
-        ) : selectedCourseId ? (
-          /* If drilled down into a specific course detail */
-          <CourseDetailView
-            courseId={selectedCourseId}
-            onBack={() => setSelectedCourseId(null)}
-            onOpenAssessmentBuilder={(asmId) => setEditingAssessmentId(asmId)}
-            onOpenQR={handleOpenQR}
-            onPreviewAssessment={(asmId) => setPreviewAssessmentId(asmId)}
-            onSelectAttemptDetails={(attId) => setSelectedAttemptId(attId)}
-          />
-        ) : currentTab === 'dashboard' ? (
-          <DashboardView
-            onNavigateCourse={(cId) => {
-              setSelectedCourseId(cId);
-              setCurrentTab('courses');
-            }}
-            onNavigateNewCourse={() => {
-              setCurrentTab('courses');
-            }}
-            onNavigateEssays={() => {
-              setCurrentTab('essays');
-            }}
-            onOpenQR={handleOpenQR}
-          />
-        ) : currentTab === 'courses' ? (
-          <CoursesView
-            onNavigateCourse={handleNavigateCourse}
-            onOpenQR={handleOpenQR}
-          />
-        ) : currentTab === 'categories' ? (
-          <CoursesView
-            onNavigateCourse={handleNavigateCourse}
-            onOpenQR={handleOpenQR}
-          />
-        ) : currentTab === 'essays' ? (
-          <EssayReviewView />
-        ) : currentTab === 'archived' ? (
-          <ArchivedCoursesView onNavigateCourse={handleNavigateCourse} />
-        ) : null}
-      </CoordinatorLayout>
-
-      {/* Global Modals */}
-      <AuditLogModal
-        isOpen={isAuditLogOpen}
-        onClose={() => setIsAuditLogOpen(false)}
-      />
-
-      <QRCodeModal
-        isOpen={Boolean(qrModalData)}
-        onClose={() => setQrModalData(null)}
-        course={qrModalData?.course || null}
-        assessment={qrModalData?.assessment || null}
-        onOpenStudentView={(token) => {
-          setQrModalData(null);
-          setStudentToken(token);
-          setIsStudentPortalActive(true);
+      <StudentPortal
+        initialToken={studentToken}
+        onSwitchToCoordinator={() => {
+          setIsCoordinatorActive(true);
         }}
       />
-
-      <AssessmentPreviewModal
-        isOpen={Boolean(previewAssessmentId)}
-        onClose={() => setPreviewAssessmentId(null)}
-        assessment={previewAssessment}
-        courseName={previewCourse?.name}
-      />
-
-      <AttemptDetailModal
-        attemptId={selectedAttemptId}
-        onClose={() => setSelectedAttemptId(null)}
-      />
-
       <ToastContainer />
     </>
   );

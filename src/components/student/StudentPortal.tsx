@@ -12,7 +12,16 @@ import { Assessment, Course, Attempt } from '../../types';
 import { StudentLanding } from './StudentLanding';
 import { TestRunner } from './TestRunner';
 import { CompletionScreen } from './CompletionScreen';
-import { AlertCircle, QrCode, ArrowLeft, RefreshCw } from 'lucide-react';
+import {
+  AlertCircle,
+  QrCode,
+  ArrowRight,
+  Shield,
+  Clock,
+  FileText,
+  BookOpen,
+  Sparkles,
+} from 'lucide-react';
 
 interface StudentPortalProps {
   initialToken?: string;
@@ -35,7 +44,11 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   const [activeAttemptId, setActiveAttemptId] = useState<string | null>(null);
   const [completedAttemptId, setCompletedAttemptId] = useState<string | null>(null);
 
-  // For testing simulator picker if no token provided
+  // Manual token input state
+  const [inputCode, setInputCode] = useState('');
+  const [inputError, setInputError] = useState<string | null>(null);
+
+  // All assessments & courses
   const [allAssessments, setAllAssessments] = useState<Assessment[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
 
@@ -53,6 +66,9 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         setAssessment(null);
         setCourse(null);
       }
+    } else {
+      setAssessment(null);
+      setCourse(null);
     }
   };
 
@@ -78,6 +94,36 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
     setCompletedAttemptId(attemptId);
   };
 
+  // Reset to Student Home page
+  const handleReturnHome = () => {
+    setCompletedAttemptId(null);
+    setActiveAttemptId(null);
+    setToken('');
+    setAssessment(null);
+    setCourse(null);
+    setInputCode('');
+    setInputError(null);
+    if (window.history.pushState) {
+      const newurl =
+        window.location.protocol + '//' + window.location.host + window.location.pathname;
+      window.history.pushState({ path: newurl }, '', newurl);
+    }
+  };
+
+  // Handle manual code submission
+  const handleManualCodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = inputCode.trim();
+    if (!clean) return;
+    const found = getAssessmentByPublicToken(clean);
+    if (!found) {
+      setInputError('Assessment code not found. Please verify the code with your instructor.');
+      return;
+    }
+    setInputError(null);
+    setToken(clean);
+  };
+
   // 1. If currently in active test run
   if (activeAttempt && course && assessment && activeAttempt.status === 'IN_PROGRESS') {
     return (
@@ -97,10 +143,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         attempt={completedAttempt}
         course={course}
         assessment={assessment}
-        onReturnHome={() => {
-          setCompletedAttemptId(null);
-          onSwitchToCoordinator();
-        }}
+        onReturnHome={handleReturnHome}
       />
     );
   }
@@ -113,116 +156,204 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         course={course}
         onStartAttempt={handleStartAttempt}
         onSwitchToCoordinator={onSwitchToCoordinator}
+        onBackToHome={handleReturnHome}
       />
     );
   }
 
-  // 4. If no token or invalid token, provide a QR Code Simulator Picker
-  return (
-    <div className="min-h-screen bg-[#fafafa] text-[#222222] flex flex-col justify-between p-6 sm:p-10">
-      <div className="max-w-xl w-full mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img
-              src="/logo.png"
-              alt="Creativa Logo"
-              className="h-10 w-auto object-contain shrink-0"
-            />
-            <div>
-              <span className="font-extrabold text-base text-[#222222] tracking-tight">Creativa Assessment</span>
-              <span className="text-xs text-[#004e9e] font-bold block">Aswan Hub • QR Scanner</span>
-            </div>
-          </div>
+  // Filter published assessments for non-archived courses
+  const activeAssessments = allAssessments
+    .filter((asm) => asm.status === 'PUBLISHED')
+    .map((asm) => {
+      const c = allCourses.find((course) => course.id === asm.courseId);
+      return { asm, course: c };
+    })
+    .filter((item): item is { asm: Assessment; course: Course } => Boolean(item.course && !item.course.isArchived));
 
-          <button
-            onClick={onSwitchToCoordinator}
-            className="btn-pill-secondary py-1.5 px-4 text-xs font-bold"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Coordinator View</span>
-          </button>
+  // 4. STUDENT-FIRST HOME PAGE (Default experience at "/")
+  return (
+    <div className="min-h-screen bg-[#fafafa] text-[#222222] flex flex-col justify-between p-4 sm:p-8">
+      {/* Top Header Bar */}
+      <header className="max-w-4xl w-full mx-auto flex items-center justify-between pb-6 border-b border-[#e5e5e5]/80">
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="Creativa Innovation Hub"
+            className="h-10 w-auto object-contain shrink-0"
+          />
+          <div>
+            <span className="font-extrabold text-base text-[#222222] tracking-tight block">
+              Creativa Innovation Hub
+            </span>
+            <span className="text-xs text-[#004e9e] font-bold block -mt-0.5">
+              Aswan Branch • Student Assessments
+            </span>
+          </div>
         </div>
 
+        {/* Secondary Coordinator Entry */}
+        <button
+          onClick={onSwitchToCoordinator}
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#616161] hover:text-[#004e9e] hover:bg-white border border-transparent hover:border-[#e5e5e5] transition-all cursor-pointer shadow-2xs"
+          title="Coordinator Login"
+        >
+          <Shield className="w-3.5 h-3.5 text-[#004e9e]" />
+          <span>Coordinator Login</span>
+        </button>
+      </header>
+
+      {/* Main Student Experience */}
+      <main className="max-w-4xl w-full mx-auto py-8 space-y-8 flex-1">
+        {/* Welcome Section */}
+        <div className="text-center space-y-2.5 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e6eff8] text-[#004e9e] text-xs font-bold mb-1">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Official Evaluation Portal</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#222222] tracking-tight">
+            Creativa Student Assessments
+          </h1>
+          <p className="text-xs sm:text-sm text-[#616161] leading-relaxed">
+            Welcome to the assessment portal. Access your course Pre-Test and Post-Test evaluations to measure your learning progress and qualify for your official certificate.
+          </p>
+        </div>
+
+        {/* Invalid Token Alert Banner */}
         {token && !assessment && (
-          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
-            <div>
-              <span className="font-bold block text-sm">Invalid Assessment QR Token</span>
-              <span>
-                Token <code>{token}</code> was not found. Please select an available assessment below to simulate scanning a student QR code.
-              </span>
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-3 animate-in fade-in max-w-xl mx-auto">
+            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="space-y-1.5 flex-1">
+              <span className="font-bold block text-sm">Assessment Not Found</span>
+              <p>
+                No active assessment was found for code <code className="font-mono font-bold bg-rose-100 px-1.5 py-0.5 rounded">{token}</code>. It may have expired or not yet been published by your instructor.
+              </p>
+              <button
+                onClick={handleReturnHome}
+                className="text-xs font-bold text-rose-900 underline hover:text-rose-950 cursor-pointer block"
+              >
+                ← View all available assessments
+              </button>
             </div>
           </div>
         )}
 
-        <div className="bg-white rounded-3xl border border-[#e5e5e5] p-6 sm:p-8 space-y-5">
-          <div className="text-center space-y-1">
-            <div className="w-14 h-14 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center mx-auto mb-3">
-              <QrCode className="w-6 h-6" />
-            </div>
-            <h2 className="text-xl font-extrabold text-[#222222] tracking-tight">Scan Assessment QR</h2>
-            <p className="text-xs text-[#616161]">
-              Students typically access tests directly by scanning a QR code projected in class. Select any course assessment below to simulate scanning:
-            </p>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            {allCourses.length === 0 ? (
-              <div className="p-6 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] text-center space-y-1">
-                <p className="text-sm font-semibold text-[#222222]">No active assessments available yet.</p>
-                <p className="text-xs text-[#9e9e9e]">Scan an assessment QR code or enter a valid test link from your instructor.</p>
+        {/* Active Assessments or Empty State */}
+        {activeAssessments.length > 0 ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-extrabold text-[#222222] tracking-tight">Available Assessments</h2>
+                <p className="text-xs text-[#616161]">Select your course assessment below to begin</p>
               </div>
-            ) : (
-              allCourses.map((c) => {
-                const pre = allAssessments.find((a) => a.courseId === c.id && a.type === 'PRE_TEST');
-                const post = allAssessments.find((a) => a.courseId === c.id && a.type === 'POST_TEST');
+              <span className="px-3 py-1 rounded-full bg-[#e6eff8] text-[#004e9e] text-xs font-bold">
+                {activeAssessments.length} Active
+              </span>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeAssessments.map(({ asm, course: c }) => {
+                const isPre = asm.type === 'PRE_TEST';
                 return (
                   <div
-                    key={c.id}
-                    className="p-4 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] space-y-2.5"
+                    key={asm.id}
+                    className="bg-white rounded-2xl border border-[#e5e5e5] p-5 shadow-xs hover:border-[#004e9e]/40 hover:shadow-sm transition-all flex flex-col justify-between space-y-4"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-[#222222]">{c.name}</span>
-                      <span className="text-[11px] text-[#616161]">{c.instructorName}</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={`px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-full ${
+                            isPre ? 'bg-[#e6eff8] text-[#004e9e]' : 'bg-[#fef3e2] text-[#b45309]'
+                          }`}
+                        >
+                          {isPre ? 'Pre-Test' : 'Post-Test'}
+                        </span>
+                        <span className="text-xs text-[#616161] font-medium flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-[#9e9e9e]" />
+                          {asm.durationMinutes} Mins
+                        </span>
+                      </div>
+                      <h3 className="font-extrabold text-base text-[#222222] tracking-tight leading-snug">
+                        {c.name}
+                      </h3>
+                      <p className="text-xs text-[#616161]">
+                        Instructor: <span className="font-medium text-[#222222]">{c.instructorName}</span>
+                      </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      {pre && (
-                        <button
-                          onClick={() => setToken(pre.publicToken)}
-                          className="py-2.5 px-4 text-xs font-bold rounded-full bg-[#e6eff8] hover:bg-[#004e9e] text-[#004e9e] hover:text-white border border-[#004e9e]/20 transition-all flex items-center justify-between"
-                        >
-                          <span>Scan Pre-Test</span>
-                          <span className="text-[10px] font-mono opacity-80 uppercase">
-                            {pre.status}
-                          </span>
-                        </button>
-                      )}
-
-                      {post && (
-                        <button
-                          onClick={() => setToken(post.publicToken)}
-                          className="py-2.5 px-4 text-xs font-bold rounded-full bg-[#fef3e2] hover:bg-[#b45309] text-[#b45309] hover:text-white border border-[#f8af43]/30 transition-all flex items-center justify-between"
-                        >
-                          <span>Scan Post-Test</span>
-                          <span className="text-[10px] font-mono opacity-80 uppercase">
-                            {post.status}
-                          </span>
-                        </button>
-                      )}
+                    <div className="pt-3 border-t border-[#f0f0f0] flex items-center justify-between">
+                      <span className="text-[11px] text-[#9e9e9e] flex items-center gap-1 font-medium">
+                        <FileText className="w-3.5 h-3.5" />
+                        {asm.questions?.length || 0} Questions
+                      </span>
+                      <button
+                        onClick={() => {
+                          setToken(asm.publicToken);
+                        }}
+                        className="btn-pill-primary py-2 px-4 text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span>Start Assessment</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 );
-              })
-            )}
+              })}
+            </div>
           </div>
-        </div>
-      </div>
+        ) : (
+          /* Empty State (Required) */
+          <div className="bg-white rounded-3xl border border-[#e5e5e5] p-8 sm:p-12 text-center space-y-4 shadow-xs max-w-xl mx-auto">
+            <div className="w-16 h-16 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center mx-auto mb-1">
+              <BookOpen className="w-7 h-7" />
+            </div>
+            <div className="space-y-2 max-w-md mx-auto">
+              <h2 className="text-xl font-extrabold text-[#222222] tracking-tight">
+                No assessment available right now.
+              </h2>
+              <p className="text-xs sm:text-sm text-[#616161] leading-relaxed">
+                There are currently no active assessments open for submission. Please check back when your instructor launches the assessment, or scan the QR code projected in your classroom.
+              </p>
+            </div>
+          </div>
+        )}
 
-      <div className="text-center text-xs text-[#9e9e9e] py-4">
+        {/* Code Entry Card */}
+        <div className="bg-white rounded-2xl border border-[#e5e5e5] p-5 space-y-3 max-w-xl mx-auto shadow-2xs">
+          <div className="flex items-center gap-2">
+            <QrCode className="w-4 h-4 text-[#004e9e]" />
+            <span className="text-xs font-bold text-[#222222] uppercase tracking-wider">
+              Have an Assessment Code or Direct Link?
+            </span>
+          </div>
+          <form onSubmit={handleManualCodeSubmit} className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              placeholder="Enter assessment code (e.g. cva_pre_...)"
+              value={inputCode}
+              onChange={(e) => {
+                setInputCode(e.target.value);
+                setInputError(null);
+              }}
+              className="flex-1 px-4 py-2.5 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-xs font-mono font-medium focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white text-[#222222]"
+            />
+            <button
+              type="submit"
+              className="btn-pill-secondary py-2.5 px-5 text-xs font-bold shrink-0 cursor-pointer"
+            >
+              Access Assessment
+            </button>
+          </form>
+          {inputError && (
+            <p className="text-xs text-rose-600 font-semibold">{inputError}</p>
+          )}
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="text-center text-xs text-[#9e9e9e] pt-6 pb-2 border-t border-[#e5e5e5]/60 max-w-4xl w-full mx-auto">
         Creativa Innovation Hub Aswan • Ministry of Communications & Information Technology (MCIT)
-      </div>
+      </footer>
     </div>
   );
 };
+

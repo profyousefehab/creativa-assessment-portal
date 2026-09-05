@@ -7,10 +7,12 @@ import {
   Mail,
   CreditCard,
   ArrowRight,
+  ArrowLeft,
   AlertCircle,
   CheckCircle2,
   Lock,
   ExternalLink,
+  Shield,
 } from 'lucide-react';
 import { Assessment, Course, Student } from '../../types';
 import {
@@ -27,6 +29,7 @@ interface StudentLandingProps {
   course: Course;
   onStartAttempt: (attemptId: string) => void;
   onSwitchToCoordinator?: () => void;
+  onBackToHome?: () => void;
 }
 
 export const StudentLanding: React.FC<StudentLandingProps> = ({
@@ -34,6 +37,7 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
   course,
   onStartAttempt,
   onSwitchToCoordinator,
+  onBackToHome,
 }) => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -129,14 +133,27 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
           </div>
         </div>
 
-        {onSwitchToCoordinator && (
-          <button
-            onClick={onSwitchToCoordinator}
-            className="btn-pill-secondary py-1.5 px-3.5 text-xs font-bold"
-          >
-            Coordinator Portal
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onBackToHome && (
+            <button
+              onClick={onBackToHome}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#616161] hover:text-[#004e9e] hover:bg-white border border-[#e5e5e5] transition-all cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back</span>
+            </button>
+          )}
+
+          {onSwitchToCoordinator && (
+            <button
+              onClick={onSwitchToCoordinator}
+              className="inline-flex items-center gap-1.5 text-xs text-[#616161] hover:text-[#004e9e] font-semibold px-3 py-1.5 rounded-full hover:bg-white transition-colors cursor-pointer"
+            >
+              <Shield className="w-3.5 h-3.5 text-[#004e9e]" />
+              <span>Coordinator Login</span>
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Main Card */}
