@@ -115,11 +115,11 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
   return (
     <div id="coordinator-app-shell" className="min-h-screen bg-[#fafafa] font-sans text-[#222222] flex flex-col">
       {/* Floating Island Navigation Bar */}
-      <div className="sticky top-2.5 z-40 w-full px-3 sm:px-6">
-        <header className="max-w-5xl mx-auto floating-nav-island rounded-full px-3 py-1.5 flex items-center justify-between gap-2 sm:gap-4 transition-all">
+      <div className="sticky top-3.5 z-40 w-full px-4 sm:px-6 lg:px-8">
+        <header className="max-w-7xl mx-auto floating-nav-island rounded-full px-4 py-2 flex items-center justify-between gap-3 sm:gap-6 transition-all">
           {/* Brand Identity */}
           <div
-            className="flex items-center gap-2 cursor-pointer select-none pl-1 shrink-0"
+            className="flex items-center gap-2.5 cursor-pointer select-none pl-1 shrink-0"
             onClick={() => onSelectTab('dashboard')}
           >
             <img
@@ -138,7 +138,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
           </div>
 
           {/* Center: Desktop Nav Pill Tabs with Motion Layout */}
-          <nav className="hidden md:flex items-center gap-1 bg-[#f5f5f5] p-1 rounded-full border border-[#e5e5e5]/80">
+          <nav className="hidden md:flex items-center gap-1.5 bg-[#f5f5f5] p-1.5 rounded-full border border-[#e5e5e5]/80">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
@@ -147,7 +147,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                   key={item.id}
                   id={`nav-tab-${item.id}`}
                   onClick={() => onSelectTab(item.id)}
-                  className={`relative flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-colors duration-150 cursor-pointer ${
+                  className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-150 cursor-pointer ${
                     isActive ? 'text-white' : 'text-[#616161] hover:text-[#004e9e]'
                   }`}
                 >
@@ -179,26 +179,26 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
           </nav>
 
           {/* Right: Quick Utility Actions */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={handleSync}
               disabled={isSyncing}
               id="top-cloud-sync-btn"
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
                 isSyncing
                   ? 'bg-amber-50 text-amber-700 border border-amber-200'
                   : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
               }`}
               title="Sync courses & assessments to Cloud Firestore"
             >
-              <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin text-amber-600' : 'text-emerald-600'}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-amber-600' : 'text-emerald-600'}`} />
               <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Cloud Sync'}</span>
             </button>
 
             <button
               onClick={onOpenStudentDemo}
               id="top-student-view-btn"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold text-[#004e9e] bg-[#e6eff8] hover:bg-[#d6e5f5] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#004e9e] bg-[#e6eff8] hover:bg-[#d6e5f5] transition-colors cursor-pointer"
               title="Launch Student View Simulator"
             >
               <QrCode className="w-3.5 h-3.5" />
@@ -208,16 +208,16 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
             <button
               onClick={onOpenAuditLog}
               id="sidebar-audit-log-btn"
-              className="p-1.5 rounded-full text-[#616161] hover:text-[#222222] hover:bg-[#f0f0f0] transition-colors cursor-pointer"
+              className="p-2 rounded-full text-[#616161] hover:text-[#222222] hover:bg-[#f0f0f0] transition-colors cursor-pointer"
               title="Audit Log"
             >
-              <History className="w-3.5 h-3.5" />
+              <History className="w-4 h-4" />
             </button>
 
             {/* Coordinator Avatar & Signout */}
-            <div className="flex items-center gap-1 pl-1 border-l border-[#e5e5e5]">
+            <div className="flex items-center gap-1.5 pl-1.5 border-l border-[#e5e5e5]">
               <div
-                className="w-6 h-6 rounded-full bg-[#004e9e] text-white font-bold flex items-center justify-center text-[10px] select-none"
+                className="w-7 h-7 rounded-full bg-[#004e9e] text-white font-bold flex items-center justify-center text-xs select-none"
                 title={session?.email || 'Coordinator'}
               >
                 {session?.name ? session.name.substring(0, 2).toUpperCase() : 'CO'}
@@ -231,7 +231,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                 className="p-1.5 rounded-full text-[#616161] hover:text-[#b91c1c] hover:bg-rose-50 transition-colors cursor-pointer"
                 title="Sign Out"
               >
-                <LogOut className="w-3.5 h-3.5" />
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
 
@@ -293,7 +293,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                         onSelectTab(item.id);
                         setMobileMenuOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-full font-semibold text-xs transition-colors ${
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-full font-semibold text-xs transition-colors ${
                         isActive
                           ? 'bg-[#004e9e] text-white shadow-xs'
                           : 'text-[#616161] hover:bg-[#fafafa]'
@@ -323,7 +323,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                     onOpenStudentDemo();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-[#004e9e] bg-[#e6eff8] rounded-full"
+                  className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-[#004e9e] bg-[#e6eff8] rounded-full"
                 >
                   <QrCode className="w-3.5 h-3.5 text-[#004e9e]" />
                   <span>Student Portal</span>
@@ -333,7 +333,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                     logoutCoordinator();
                     onLogout();
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-[#b91c1c] hover:bg-rose-50 rounded-full"
+                  className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-[#b91c1c] hover:bg-rose-50 rounded-full"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>
@@ -346,14 +346,14 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
       </AnimatePresence>
 
       {/* Main Container */}
-      <div className="max-w-5xl w-full mx-auto px-4 sm:px-6 pt-3 pb-8 flex-1 flex flex-col">
-        {/* Compact View Header Banner */}
-        <div className="flex items-center justify-between gap-3 pb-3 mb-4 border-b border-[#e5e5e5]/80">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-12 flex-1 flex flex-col">
+        {/* View Header Banner with Clean Modern Typography */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-slate-200/80">
           <div>
-            <h2 className="text-base sm:text-lg font-extrabold text-[#222222] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               {headerMeta.title}
-            </h2>
-            <p className="text-[11px] text-[#616161]">
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               {headerMeta.subtitle}
             </p>
           </div>
@@ -361,9 +361,9 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
             <button
               onClick={() => onSelectTab('courses')}
               id="top-create-course-btn"
-              className="btn-pill-primary py-1.5 px-3 text-xs shadow-xs shrink-0 flex items-center gap-1"
+              className="btn-pill-primary py-2 px-4 text-xs font-semibold shadow-xs shrink-0 flex items-center gap-1.5 self-start sm:self-auto"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-4 h-4" />
               <span>New Course</span>
             </button>
           )}
@@ -385,12 +385,9 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
         </main>
       </div>
 
-      {/* Compact Footer */}
-      <footer className="border-t border-[#e5e5e5] bg-white py-3 text-center text-[11px] text-[#9e9e9e] mt-auto">
-        <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-1">
-          <span>Creativa Innovation Hub Aswan • Ministry of Communications & Information Technology</span>
-          <span>Pre & Post-Test Portal</span>
-        </div>
+      {/* Minimal Footer */}
+      <footer className="py-6 text-center text-xs font-medium text-slate-400 mt-auto">
+        Creativa Aswan Team
       </footer>
     </div>
   );

@@ -122,10 +122,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
         </form>
       </div>
 
-      {/* Footer info */}
-      <div className="text-center text-xs text-[#9e9e9e] max-w-md mx-auto py-2">
-        <span>Creativa Innovation Hub Aswan • Standard Pre & Post Assessment Suite</span>
-      </div>
+      {/* Minimal Footer */}
+      <footer className="text-center text-xs font-medium text-slate-400 py-6">
+        Creativa Aswan Team
+      </footer>
     </div>
   );
 };

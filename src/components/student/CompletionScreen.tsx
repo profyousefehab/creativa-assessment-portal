@@ -107,9 +107,9 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
         )}
       </div>
 
-      {/* Footer */}
-      <footer className="max-w-md w-full mx-auto text-center text-xs text-[#9e9e9e]">
-        <span>Ministry of Communications and Information Technology (MCIT)</span>
+      {/* Minimal Footer */}
+      <footer className="max-w-md w-full mx-auto text-center text-xs font-medium text-slate-400 py-6">
+        Creativa Aswan Team
       </footer>
     </div>
   );

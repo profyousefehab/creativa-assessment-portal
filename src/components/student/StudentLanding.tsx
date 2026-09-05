@@ -462,9 +462,9 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
         </div>
       </motion.div>
 
-      {/* Concise Footer */}
-      <footer className="text-center pt-3 text-[10px] text-[#9e9e9e]">
-        Creativa Innovation Hub • Aswan
+      {/* Minimal Footer */}
+      <footer className="text-center py-6 text-xs font-medium text-slate-400">
+        Creativa Aswan Team
       </footer>
 
       {/* Start Confirmation Modal with Framer Motion */}

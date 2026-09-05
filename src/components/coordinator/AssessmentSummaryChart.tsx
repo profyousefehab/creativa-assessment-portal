@@ -214,28 +214,26 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
   return (
     <div
       id="active-assessments-summary-chart"
-      className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden transition-all"
+      className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden transition-all"
     >
       {/* Top Header & Interactive Filter Bar */}
-      <div className="p-6 border-b border-[#e5e5e5] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#e6eff8] border border-[#004e9e]/20 flex items-center justify-center text-[#004e9e] shrink-0">
-              <BarChart3 className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-[#222222] tracking-tight">
-                Completion Rate vs. Average Score
-              </h2>
-              <p className="text-xs text-[#616161] mt-0.5">
-                Cohort assessment performance benchmark across active courses
-              </p>
-            </div>
+      <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#004e9e] shrink-0">
+            <BarChart3 className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+              Completion Rate vs. Average Score
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Cohort assessment performance benchmark across active courses
+            </p>
           </div>
         </div>
 
         {/* Filter Tabs - Full Pills */}
-        <div className="nav-pill-container text-xs font-semibold">
+        <div className="nav-pill-container text-xs font-semibold self-start md:self-auto">
           <button
             type="button"
             id="chart-filter-all"
@@ -287,71 +285,8 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
         </div>
       </div>
 
-      {/* Aggregate Metrics Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-5 bg-[#fafafa] border-b border-[#e5e5e5]">
-        <div className="bg-white p-3.5 rounded-2xl border border-[#e5e5e5] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#616161] uppercase tracking-wider">
-              Avg Completion
-            </span>
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#004e9e]" />
-          </div>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-xl font-bold text-[#004e9e]">
-              {stats.overallAvgCompletion}%
-            </span>
-            <span className="text-[10px] text-[#9e9e9e]">across active tests</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-2xl border border-[#e5e5e5] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#616161] uppercase tracking-wider">
-              Avg Score
-            </span>
-            <Award className="w-3.5 h-3.5 text-[#f8af43]" />
-          </div>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-xl font-bold text-[#f8af43]">
-              {stats.overallAvgScore}%
-            </span>
-            <span className="text-[10px] text-[#9e9e9e]">graded cohort avg</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-2xl border border-[#e5e5e5] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#616161] uppercase tracking-wider">
-              Assessments Shown
-            </span>
-            <Filter className="w-3.5 h-3.5 text-[#9e9e9e]" />
-          </div>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-xl font-bold text-[#222222]">
-              {filteredData.length}
-            </span>
-            <span className="text-[10px] text-[#9e9e9e]">active tests</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-2xl border border-[#e5e5e5] shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#616161] uppercase tracking-wider">
-              Completed Attempts
-            </span>
-            <TrendingUp className="w-3.5 h-3.5 text-[#047857]" />
-          </div>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-xl font-bold text-[#222222]">
-              {stats.totalEvaluatedAttempts}
-            </span>
-            <span className="text-[10px] text-[#9e9e9e]">evaluated submissions</span>
-          </div>
-        </div>
-      </div>
-
       {/* Chart Canvas Area */}
-      <div className="p-6">
+      <div className="p-5 sm:p-6">
         {filteredData.length === 0 ? (
           <div className="py-16 text-center text-[#616161]">
             <BarChart3 className="w-12 h-12 text-[#d4d4d4] mx-auto mb-2" />
@@ -380,23 +315,23 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
                   }}
                   className="cursor-pointer"
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis
                     dataKey="shortLabel"
-                    stroke="#9e9e9e"
+                    stroke="#94a3b8"
                     fontSize={11}
                     tickLine={false}
-                    axisLine={{ stroke: '#e5e5e5' }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     interval={0}
                     angle={-18}
                     textAnchor="end"
                     height={55}
                   />
                   <YAxis
-                    stroke="#9e9e9e"
+                    stroke="#94a3b8"
                     fontSize={11}
                     tickLine={false}
-                    axisLine={{ stroke: '#e5e5e5' }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     domain={[0, 100]}
                     ticks={[0, 25, 50, 75, 100]}
                     tickFormatter={(val) => `${val}%`}
@@ -404,12 +339,12 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
                   <Tooltip content={<CustomTooltip />} />
                   <ReferenceLine
                     y={50}
-                    stroke="#e5e5e5"
+                    stroke="#cbd5e1"
                     strokeDasharray="3 3"
                     label={{
                       value: '50% Threshold',
                       position: 'insideBottomRight',
-                      fill: '#9e9e9e',
+                      fill: '#94a3b8',
                       fontSize: 10,
                     }}
                   />
@@ -439,30 +374,35 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
             </div>
 
             {/* Bottom Key Insights Banner */}
-            <div className="mt-4 pt-4 border-t border-[#e5e5e5] flex flex-wrap items-center justify-between gap-3 text-xs text-[#616161]">
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-3 py-1 rounded-full text-slate-600 font-medium">
+                  <span>Overall Avg: <strong className="text-slate-900">{stats.overallAvgScore}% score</strong></span>
+                  <span className="text-slate-300">•</span>
+                  <span><strong className="text-slate-900">{stats.overallAvgCompletion}% completion</strong></span>
+                </div>
                 {stats.topCompletionItem && (
-                  <div className="flex items-center gap-1.5 bg-[#e6eff8] border border-[#004e9e]/20 px-3 py-1.5 rounded-full">
+                  <div className="flex items-center gap-1.5 bg-[#e6eff8] border border-[#004e9e]/20 px-3 py-1 rounded-full">
                     <CheckCircle2 className="w-3.5 h-3.5 text-[#004e9e] shrink-0" />
                     <span className="text-[#222222]">
-                      <strong className="text-[#004e9e]">Highest Completion:</strong>{' '}
+                      <strong className="text-[#004e9e]">Top Completion:</strong>{' '}
                       {stats.topCompletionItem.shortLabel} ({stats.topCompletionItem.completionRate}%)
                     </span>
                   </div>
                 )}
                 {stats.topScoreItem && (
-                  <div className="flex items-center gap-1.5 bg-[#fef3e2] border border-[#fde68a] px-3 py-1.5 rounded-full">
+                  <div className="flex items-center gap-1.5 bg-[#fef3e2] border border-[#fde68a] px-3 py-1 rounded-full">
                     <Sparkles className="w-3.5 h-3.5 text-[#f8af43] shrink-0" />
                     <span className="text-[#222222]">
-                      <strong className="text-[#b45309]">Highest Avg Score:</strong>{' '}
+                      <strong className="text-[#b45309]">Top Score:</strong>{' '}
                       {stats.topScoreItem.shortLabel} ({stats.topScoreItem.averageScore}%)
                     </span>
                   </div>
                 )}
               </div>
 
-              <span className="text-[11px] text-[#9e9e9e]">
-                Click any bar to jump to the respective course
+              <span className="text-[11px] text-slate-400">
+                Click any bar to jump to course details
               </span>
             </div>
           </div>

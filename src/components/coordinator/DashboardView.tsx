@@ -61,56 +61,49 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const cards = [
     {
       id: 'total-courses',
-      label: 'Courses',
+      label: 'Active Courses',
       value: summary.totalCourses,
+      subtitle: `${courses.length} active cohorts`,
       icon: GraduationCap,
-      color: 'text-[#004e9e] bg-[#e6eff8] border-[#004e9e]/20',
+      color: 'text-[#004e9e] bg-blue-50 border-blue-100',
     },
     {
       id: 'total-students',
-      label: 'Students',
+      label: 'Enrolled Students',
       value: summary.totalStudents,
+      subtitle: 'National ID verified',
       icon: Users,
-      color: 'text-[#004e9e] bg-[#e6eff8] border-[#004e9e]/20',
+      color: 'text-indigo-600 bg-indigo-50 border-indigo-100',
     },
     {
-      id: 'total-assessments',
-      label: 'Assessments',
-      value: summary.totalAssessments,
-      icon: FileSpreadsheet,
-      color: 'text-[#222222] bg-[#fafafa] border-[#e5e5e5]',
-    },
-    {
-      id: 'completed-pre-tests',
-      label: 'Completed Pre',
-      value: summary.completedPreTests,
+      id: 'completed-assessments',
+      label: 'Exams Completed',
+      value: summary.completedPreTests + summary.completedPostTests,
+      subtitle: `${summary.completedPreTests} Pre • ${summary.completedPostTests} Post`,
       icon: CheckCircle,
-      color: 'text-[#004e9e] bg-[#e6eff8] border-[#004e9e]/20',
-    },
-    {
-      id: 'completed-post-tests',
-      label: 'Completed Post',
-      value: summary.completedPostTests,
-      icon: CheckCircle,
-      color: 'text-[#047857] bg-[#ecfdf5] border-[#a7f3d0]',
+      color: 'text-emerald-700 bg-emerald-50 border-emerald-200/80',
     },
     {
       id: 'pending-essays',
-      label: 'Pending Essays',
+      label: 'Essay Queue',
       value: summary.pendingEssayReviews,
+      subtitle:
+        summary.pendingEssayReviews > 0
+          ? 'Needs review • Click to grade'
+          : 'All submissions graded',
       icon: FileCheck2,
       color:
         summary.pendingEssayReviews > 0
-          ? 'text-[#b45309] bg-[#fffbeb] border-[#fde68a] animate-pulse'
-          : 'text-[#616161] bg-[#fafafa] border-[#e5e5e5]',
+          ? 'text-amber-700 bg-amber-50 border-amber-200'
+          : 'text-slate-500 bg-slate-50 border-slate-200',
       action: summary.pendingEssayReviews > 0 ? onNavigateEssays : undefined,
     },
   ];
 
   return (
-    <div id="dashboard-view" className="space-y-4 sm:space-y-5">
-      {/* 6 Compact Summary Cards with Motion */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+    <div id="dashboard-view" className="space-y-6 sm:space-y-8">
+      {/* 4 Spacious, High-Impact KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {cards.map((card, idx) => {
           const Icon = card.icon;
           return (
@@ -120,27 +113,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={card.action}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.04, duration: 0.2 }}
+              transition={{ delay: idx * 0.05, duration: 0.2 }}
               whileHover={{ y: -2, transition: { duration: 0.12 } }}
-              className={`p-3.5 rounded-2xl bg-white border border-[#e5e5e5] glow-soft flex flex-col justify-between transition-all ${
+              className={`p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col justify-between transition-all ${
                 card.action
-                  ? 'cursor-pointer hover:border-[#f8af43] hover:shadow-sm'
-                  : 'hover:border-[#d4d4d4]'
+                  ? 'cursor-pointer hover:border-amber-400 hover:shadow-sm ring-1 ring-amber-400/20'
+                  : 'hover:border-slate-300'
               }`}
             >
-              <div className="flex items-center justify-between gap-1 mb-2">
-                <span className="text-[10px] font-bold text-[#616161] tracking-wide uppercase truncate">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <span className="text-xs font-semibold text-slate-500 tracking-wider uppercase">
                   {card.label}
                 </span>
                 <div
-                  className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${card.color}`}
+                  className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${card.color}`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-5 h-5" />
                 </div>
               </div>
-              <span className="text-xl font-extrabold text-[#222222] tracking-tight block">
-                {card.value}
-              </span>
+              <div>
+                <span className="text-3xl font-extrabold text-slate-900 tracking-tight block">
+                  {card.value}
+                </span>
+                <p className="text-xs text-slate-500 mt-1 font-medium truncate">
+                  {card.subtitle}
+                </p>
+              </div>
             </motion.div>
           );
         })}
@@ -157,23 +155,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.2 }}
-        className="bg-white rounded-2xl border border-[#e5e5e5] shadow-xs glow-soft overflow-hidden"
+        className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden"
       >
-        <div className="p-3.5 sm:p-4 border-b border-[#e5e5e5] flex items-center justify-between">
+        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-[#222222] tracking-tight">Active Courses</h2>
-            <p className="text-[11px] text-[#616161]">Recent cohorts and assessment progress</p>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Active Courses</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Recent cohorts and assessment progress</p>
           </div>
-          <span className="text-[11px] font-bold text-[#004e9e] bg-[#e6eff8] px-2.5 py-0.5 rounded-full">
-            {courses.length} Active
+          <span className="text-xs font-bold text-[#004e9e] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+            {courses.length} Active Cohorts
           </span>
         </div>
 
         {courses.length === 0 ? (
-          <div className="p-8 text-center text-[#616161]">
-            <GraduationCap className="w-8 h-8 text-[#d4d4d4] mx-auto mb-2" />
-            <p className="text-xs font-semibold text-[#222222]">No active courses yet.</p>
-            <p className="text-[11px] text-[#9e9e9e] mt-0.5">
+          <div className="p-12 text-center text-slate-500">
+            <GraduationCap className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+            <p className="text-sm font-semibold text-slate-800">No active courses yet.</p>
+            <p className="text-xs text-slate-400 mt-1">
               Create your first course to configure assessments.
             </p>
           </div>
@@ -181,50 +179,50 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-[#e5e5e5] bg-[#fafafa] text-[10px] uppercase tracking-wider text-[#616161] font-bold">
-                  <th className="py-2.5 px-4">Course</th>
-                  <th className="py-2.5 px-3">Instructor</th>
-                  <th className="py-2.5 px-3">Category</th>
-                  <th className="py-2.5 px-3">Dates</th>
-                  <th className="py-2.5 px-3 text-center">Pre-Test</th>
-                  <th className="py-2.5 px-3 text-center">Post-Test</th>
-                  <th className="py-2.5 px-4 text-right">Actions</th>
+                <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] uppercase tracking-wider text-slate-500 font-bold">
+                  <th className="py-3.5 px-5">Course</th>
+                  <th className="py-3.5 px-4">Instructor</th>
+                  <th className="py-3.5 px-4">Category</th>
+                  <th className="py-3.5 px-4">Dates</th>
+                  <th className="py-3.5 px-4 text-center">Pre-Test</th>
+                  <th className="py-3.5 px-4 text-center">Post-Test</th>
+                  <th className="py-3.5 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e5e5e5]">
+              <tbody className="divide-y divide-slate-100">
                 {courses.map((course) => {
                   const { preTest, postTest } = getAssessmentsForCourse(course.id);
                   return (
                     <tr
                       key={course.id}
                       id={`course-row-${course.id}`}
-                      className="hover:bg-[#fafafa]/80 transition-colors group cursor-pointer"
+                      className="hover:bg-slate-50/70 transition-colors group cursor-pointer"
                       onClick={() => onNavigateCourse(course.id)}
                     >
-                      <td className="py-3 px-4 font-bold text-[#222222]">
+                      <td className="py-4 px-5 font-bold text-slate-900">
                         {course.name}
                       </td>
-                      <td className="py-3 px-3 text-[#616161]">
+                      <td className="py-4 px-4 text-slate-600">
                         {course.instructorName}
                       </td>
-                      <td className="py-3 px-3">
-                        <span className="inline-flex items-center px-2 py-0.2 rounded-full text-[10px] font-medium bg-[#fafafa] border border-[#e5e5e5] text-[#616161]">
+                      <td className="py-4 px-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200/60">
                           {getCategoryName(course.categoryId)}
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-[11px] font-mono text-[#616161] whitespace-nowrap">
+                      <td className="py-4 px-4 text-xs font-mono text-slate-500 whitespace-nowrap">
                         {course.startDate} — {course.endDate}
                       </td>
-                      <td className="py-3 px-3 text-center">
+                      <td className="py-4 px-4 text-center">
                         {preTest ? (
-                          <div className="inline-flex items-center gap-1">
+                          <div className="inline-flex items-center gap-1.5">
                             <span
-                              className={`px-2 py-0.2 rounded-full text-[10px] font-semibold ${
+                              className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                                 preTest.status === 'PUBLISHED'
-                                  ? 'bg-[#ecfdf5] text-[#047857] border border-[#a7f3d0]'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
                                   : preTest.status === 'UNPUBLISHED'
-                                  ? 'bg-[#fffbeb] text-[#b45309] border border-[#fde68a]'
-                                  : 'bg-[#fafafa] text-[#616161] border border-[#e5e5e5]'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200/80'
+                                  : 'bg-slate-100 text-slate-600 border border-slate-200'
                               }`}
                             >
                               {preTest.status}
@@ -237,26 +235,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                   onOpenQR(course, preTest);
                                 }}
                                 title="Show Pre-Test QR"
-                                className="text-[#9e9e9e] hover:text-[#004e9e] p-1 rounded-full hover:bg-black/5"
+                                className="text-slate-400 hover:text-[#004e9e] p-1 rounded-md hover:bg-blue-50 transition-colors"
                               >
-                                <QrCode className="w-3 h-3" />
+                                <QrCode className="w-3.5 h-3.5" />
                               </button>
                             )}
                           </div>
                         ) : (
-                          <span className="text-[11px] text-[#9e9e9e]">None</span>
+                          <span className="text-xs text-slate-400">None</span>
                         )}
                       </td>
-                      <td className="py-3 px-3 text-center">
+                      <td className="py-4 px-4 text-center">
                         {postTest ? (
-                          <div className="inline-flex items-center gap-1">
+                          <div className="inline-flex items-center gap-1.5">
                             <span
-                              className={`px-2 py-0.2 rounded-full text-[10px] font-semibold ${
+                              className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                                 postTest.status === 'PUBLISHED'
-                                  ? 'bg-[#ecfdf5] text-[#047857] border border-[#a7f3d0]'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
                                   : postTest.status === 'UNPUBLISHED'
-                                  ? 'bg-[#fffbeb] text-[#b45309] border border-[#fde68a]'
-                                  : 'bg-[#fafafa] text-[#616161] border border-[#e5e5e5]'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200/80'
+                                  : 'bg-slate-100 text-slate-600 border border-slate-200'
                               }`}
                             >
                               {postTest.status}
@@ -269,19 +267,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                   onOpenQR(course, postTest);
                                 }}
                                 title="Show Post-Test QR"
-                                className="text-[#9e9e9e] hover:text-[#004e9e] p-1 rounded-full hover:bg-black/5"
+                                className="text-slate-400 hover:text-[#004e9e] p-1 rounded-md hover:bg-blue-50 transition-colors"
                               >
-                                <QrCode className="w-3 h-3" />
+                                <QrCode className="w-3.5 h-3.5" />
                               </button>
                             )}
                           </div>
                         ) : (
-                          <span className="text-[11px] text-[#9e9e9e]">None</span>
+                          <span className="text-xs text-slate-400">None</span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-right">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#004e9e] group-hover:text-[#003b78] transition-colors">
-                          Manage <ArrowRight className="w-3 h-3" />
+                      <td className="py-4 px-5 text-right">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#004e9e] group-hover:text-[#003b78] transition-colors">
+                          Manage <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                       </td>
                     </tr>
