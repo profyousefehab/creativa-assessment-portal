@@ -463,7 +463,7 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
       </motion.div>
 
       {/* Minimal Footer */}
-      <footer className="text-center py-6 text-xs font-medium text-slate-400">
+      <footer className="text-center py-4 text-[11px] font-medium text-slate-400">
         Creativa Aswan Team
       </footer>
 

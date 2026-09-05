@@ -108,7 +108,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
       </div>
 
       {/* Minimal Footer */}
-      <footer className="max-w-md w-full mx-auto text-center text-xs font-medium text-slate-400 py-6">
+      <footer className="max-w-md w-full mx-auto text-center text-[11px] font-medium text-slate-400 py-4">
         Creativa Aswan Team
       </footer>
     </div>

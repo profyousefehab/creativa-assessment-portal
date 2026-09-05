@@ -123,7 +123,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
       </div>
 
       {/* Minimal Footer */}
-      <footer className="text-center text-xs font-medium text-slate-400 py-6">
+      <footer className="text-center text-[11px] font-medium text-slate-400 py-4">
         Creativa Aswan Team
       </footer>
     </div>

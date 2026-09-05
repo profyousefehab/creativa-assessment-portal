@@ -418,7 +418,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       </main>
 
       {/* Minimal Footer */}
-      <footer className="text-center text-xs font-medium text-slate-400 py-6 max-w-3xl w-full mx-auto">
+      <footer className="text-center text-[11px] font-medium text-slate-400 py-4 max-w-3xl w-full mx-auto">
         Creativa Aswan Team
       </footer>
     </div>
