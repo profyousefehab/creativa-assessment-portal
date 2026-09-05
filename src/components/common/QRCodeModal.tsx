@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { X, ExternalLink, Copy, Check, Maximize2, Minimize2, Sparkles } from 'lucide-react';
+import { X, ExternalLink, Copy, Check, Maximize2, Minimize2, Sparkles, AlertTriangle } from 'lucide-react';
 import { Assessment, Course } from '../../types';
 
 interface QRCodeModalProps {
@@ -175,9 +175,9 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
 
           {/* Unavailability Notice if Unpublished/Draft */}
           {!isPublished && (
-            <div className="mt-3 w-full p-3 rounded-2xl bg-[#fffbeb] border border-[#fde68a] text-[#b45309] text-xs text-center font-medium">
-              ⚠️ Note: This assessment is currently <strong>{assessment.status}</strong>. Students scanning this QR
-              will see "Assessment Unavailable" until published.
+            <div className="mt-3 w-full p-2.5 rounded-2xl bg-[#fffbeb] border border-[#fde68a] text-[#b45309] text-xs text-center font-medium flex items-center justify-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+              <span>Note: This assessment is currently <strong>{assessment.status}</strong>. Students scanning this QR will see "Assessment Unavailable" until published.</span>
             </div>
           )}
 

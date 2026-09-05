@@ -19,10 +19,9 @@ import {
   ArrowRight,
   Shield,
   Clock,
-  FileText,
   BookOpen,
-  Sparkles,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface StudentPortalProps {
   initialToken?: string;
@@ -118,7 +117,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
     if (!clean) return;
     const found = getAssessmentByPublicToken(clean);
     if (!found) {
-      setInputError('Assessment code not found. Please verify the code with your instructor.');
+      setInputError('Assessment code not found. Please verify with your instructor.');
       return;
     }
     setInputError(null);
@@ -173,20 +172,20 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
   // 4. STUDENT-FIRST HOME PAGE (Default experience at "/")
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#222222] flex flex-col justify-between p-4 sm:p-6">
+    <div className="min-h-screen bg-[#fafafa] text-[#222222] flex flex-col justify-between p-4 sm:p-5">
       {/* Top Header Bar */}
-      <header className="max-w-3xl w-full mx-auto flex items-center justify-between pb-4 border-b border-[#e5e5e5]">
-        <div className="flex items-center gap-2.5">
+      <header className="max-w-3xl w-full mx-auto flex items-center justify-between pb-3 border-b border-[#e5e5e5]">
+        <div className="flex items-center gap-2">
           <img
             src="/logo.png"
             alt="Creativa"
-            className="h-9 w-auto object-contain shrink-0"
+            className="h-8 w-auto object-contain shrink-0"
           />
           <div>
-            <span className="font-extrabold text-sm text-[#222222] tracking-tight block leading-tight">
+            <span className="font-extrabold text-xs text-[#222222] tracking-tight block leading-tight">
               Creativa Hub
             </span>
-            <span className="text-[11px] text-[#004e9e] font-bold block">
+            <span className="text-[10px] text-[#004e9e] font-bold block">
               Aswan
             </span>
           </div>
@@ -195,29 +194,34 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         {/* Secondary Coordinator Entry */}
         <button
           onClick={onSwitchToCoordinator}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#616161] hover:text-[#004e9e] hover:bg-white border border-transparent hover:border-[#e5e5e5] transition-all cursor-pointer"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-[#616161] hover:text-[#004e9e] hover:bg-white border border-transparent hover:border-[#e5e5e5] transition-all cursor-pointer"
           title="Coordinator Login"
         >
-          <Shield className="w-3.5 h-3.5 text-[#004e9e]" />
+          <Shield className="w-3 h-3 text-[#004e9e]" />
           <span>Coordinator Login</span>
         </button>
       </header>
 
-      {/* Main Student Experience */}
-      <main className="max-w-3xl w-full mx-auto py-6 space-y-6 flex-1">
+      {/* Main Student Experience with Motion */}
+      <main className="max-w-3xl w-full mx-auto py-5 space-y-5 flex-1">
         {/* Concise Header & Code Search */}
-        <div className="space-y-4 text-center max-w-lg mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-3.5 text-center max-w-md mx-auto"
+        >
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#222222] tracking-tight">
+            <h1 className="text-lg sm:text-xl font-extrabold text-[#222222] tracking-tight">
               Student Assessments
             </h1>
-            <p className="text-xs text-[#616161] mt-1">
+            <p className="text-xs text-[#616161] mt-0.5">
               Select your course or enter an assessment code to begin.
             </p>
           </div>
 
-          {/* Quick Code Entry Bar */}
-          <form onSubmit={handleManualCodeSubmit} className="flex items-center gap-2 max-w-md mx-auto">
+          {/* Quick Code Entry Bar with Subtle Glow */}
+          <form onSubmit={handleManualCodeSubmit} className="flex items-center gap-2 max-w-sm mx-auto">
             <div className="relative flex-1">
               <input
                 type="text"
@@ -227,13 +231,13 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                   setInputCode(e.target.value);
                   setInputError(null);
                 }}
-                className="w-full pl-9 pr-3 py-2 bg-white border border-[#e5e5e5] rounded-full text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#004e9e] text-[#222222]"
+                className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#e5e5e5] rounded-full text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#004e9e] text-[#222222] glow-soft transition-all"
               />
-              <QrCode className="w-3.5 h-3.5 text-[#9e9e9e] absolute left-3 top-2.5 pointer-events-none" />
+              <QrCode className="w-3.5 h-3.5 text-[#9e9e9e] absolute left-2.5 top-2 pointer-events-none" />
             </div>
             <button
               type="submit"
-              className="btn-pill-primary py-2 px-4 text-xs font-bold cursor-pointer shrink-0"
+              className="btn-pill-primary py-1.5 px-3.5 text-xs font-bold cursor-pointer shrink-0 glow-primary-soft"
             >
               Join
             </button>
@@ -242,18 +246,18 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
           {inputError && (
             <p className="text-xs text-rose-600 font-semibold text-center">{inputError}</p>
           )}
-        </div>
+        </motion.div>
 
         {/* Invalid Token Alert Banner */}
         {token && !assessment && (
-          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-3 max-w-md mx-auto">
+          <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-2 max-w-md mx-auto">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>Assessment <code className="font-mono font-bold bg-rose-100 px-1 py-0.5 rounded">{token}</code> not found.</span>
+              <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+              <span>Assessment <code className="font-mono font-bold bg-rose-100 px-1 py-0.2 rounded">{token}</code> not found.</span>
             </div>
             <button
               onClick={handleReturnHome}
-              className="font-bold underline cursor-pointer text-[11px] shrink-0"
+              className="font-bold underline cursor-pointer text-[10px] shrink-0"
             >
               Dismiss
             </button>
@@ -262,40 +266,44 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
         {/* Active Assessments or Empty State */}
         {activeAssessments.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#616161] uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-[#616161] uppercase tracking-wider">
                 Available Assessments
               </span>
-              <span className="text-[11px] font-bold text-[#004e9e] bg-[#e6eff8] px-2 py-0.5 rounded-full">
-                {activeAssessments.length}
+              <span className="text-[10px] font-bold text-[#004e9e] bg-[#e6eff8] px-2 py-0.2 rounded-full">
+                {activeAssessments.length} Active
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {activeAssessments.map(({ asm, course: c }) => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {activeAssessments.map(({ asm, course: c }, idx) => {
                 const isPre = asm.type === 'PRE_TEST';
                 return (
-                  <div
+                  <motion.div
                     key={asm.id}
-                    className="bg-white rounded-2xl border border-[#e5e5e5] p-4 shadow-xs hover:border-[#004e9e]/50 transition-all flex flex-col justify-between space-y-3"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05, duration: 0.2 }}
+                    whileHover={{ y: -2, transition: { duration: 0.12 } }}
+                    className="bg-white rounded-2xl border border-[#e5e5e5] p-3.5 shadow-xs glow-soft hover:border-[#004e9e]/50 hover:shadow-sm transition-all flex flex-col justify-between space-y-2.5"
                   >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between gap-2">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-1">
                         <span
-                          className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full ${
+                          className={`px-2 py-0.2 text-[10px] font-bold uppercase tracking-wider rounded-full ${
                             isPre ? 'bg-[#e6eff8] text-[#004e9e]' : 'bg-[#fef3e2] text-[#b45309]'
                           }`}
                         >
                           {isPre ? 'Pre-Test' : 'Post-Test'}
                         </span>
-                        <span className="text-[11px] text-[#616161] font-medium flex items-center gap-1">
+                        <span className="text-[10px] text-[#616161] font-medium flex items-center gap-1">
                           <Clock className="w-3 h-3 text-[#9e9e9e]" />
                           {asm.durationMinutes}m
                         </span>
                       </div>
 
-                      <h3 className="font-bold text-sm text-[#222222] tracking-tight line-clamp-1">
+                      <h3 className="font-bold text-xs sm:text-sm text-[#222222] tracking-tight line-clamp-1">
                         {c.name}
                       </h3>
                       <p className="text-[11px] text-[#616161] truncate">
@@ -304,34 +312,34 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                     </div>
 
                     <div className="pt-2 border-t border-[#f0f0f0] flex items-center justify-between">
-                      <span className="text-[11px] text-[#9e9e9e] font-medium">
-                        {asm.questions?.length || 0} Qs
+                      <span className="text-[10px] text-[#9e9e9e] font-medium">
+                        {asm.questions?.length || 0} Questions
                       </span>
                       <button
                         onClick={() => {
                           setToken(asm.publicToken);
                         }}
-                        className="btn-pill-primary py-1.5 px-3.5 text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1"
+                        className="btn-pill-primary py-1 px-3 text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1"
                       >
                         <span>Start</span>
                         <ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           </div>
         ) : (
           /* Concise Empty State */
-          <div className="bg-white rounded-2xl border border-[#e5e5e5] p-8 text-center space-y-2 max-w-sm mx-auto shadow-xs">
-            <div className="w-12 h-12 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center mx-auto mb-2">
-              <BookOpen className="w-5 h-5" />
+          <div className="bg-white rounded-2xl border border-[#e5e5e5] p-6 text-center space-y-1.5 max-w-sm mx-auto shadow-xs glow-soft">
+            <div className="w-10 h-10 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center mx-auto mb-1">
+              <BookOpen className="w-4 h-4" />
             </div>
-            <h2 className="text-sm font-bold text-[#222222]">
+            <h2 className="text-xs font-bold text-[#222222]">
               No active assessments
             </h2>
-            <p className="text-xs text-[#616161]">
+            <p className="text-[11px] text-[#616161]">
               Enter a code above or ask your instructor for a direct link.
             </p>
           </div>
@@ -339,10 +347,9 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       </main>
 
       {/* Concise Footer */}
-      <footer className="text-center text-[11px] text-[#9e9e9e] pt-4 pb-1 border-t border-[#e5e5e5] max-w-3xl w-full mx-auto">
+      <footer className="text-center text-[10px] text-[#9e9e9e] pt-3 pb-1 border-t border-[#e5e5e5] max-w-3xl w-full mx-auto">
         Creativa Innovation Hub • Aswan
       </footer>
     </div>
   );
 };
-

@@ -10,9 +10,9 @@ import {
   LogOut,
   Menu,
   X,
-  Shield,
   Plus,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   getCoordinatorSession,
   logoutCoordinator,
@@ -48,7 +48,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
     { id: 'categories' as const, label: 'Categories', icon: FolderTree },
     {
       id: 'essays' as const,
-      label: 'Essay Reviews',
+      label: 'Essays',
       icon: FileCheck2,
       badge: pendingEssayCount > 0 ? pendingEssayCount : undefined,
     },
@@ -59,32 +59,32 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
     switch (currentTab) {
       case 'dashboard':
         return {
-          title: 'Dashboard Overview',
-          subtitle: 'Welcome back. Here is the current portal activity and assessment metrics.',
+          title: 'Coordinator Dashboard',
+          subtitle: 'Cohort activity, assessment completion rates, and learning metrics.',
         };
       case 'courses':
         return {
           title: 'Courses & Assessments',
-          subtitle: 'Manage active training cohorts, pre-tests, post-tests, and question banks.',
+          subtitle: 'Active cohorts, pre-tests, post-tests, and randomized question banks.',
         };
       case 'categories':
         return {
-          title: 'Course Categories',
-          subtitle: 'Organize training curricula across specialized tech & business domains.',
+          title: 'Curriculum Categories',
+          subtitle: 'Organize training tracks across tech & entrepreneurship disciplines.',
         };
       case 'essays':
         return {
-          title: 'Essay Evaluations',
-          subtitle: 'Grade student open-ended responses with rubrics and customized feedback.',
+          title: 'Essay Review Queue',
+          subtitle: 'Evaluate student long-form answers and submit rubric scores.',
         };
       case 'archived':
         return {
-          title: 'Archived Courses',
-          subtitle: 'Historical cohorts preserved in read-only audit archive.',
+          title: 'Archived Cohorts',
+          subtitle: 'Read-only repository of completed training cohorts and past attempts.',
         };
       default:
         return {
-          title: 'Creativa Assessment Portal',
+          title: 'Creativa Hub Portal',
           subtitle: 'Creativa Innovation Hub Aswan',
         };
     }
@@ -93,184 +93,161 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
   const headerMeta = getHeaderMeta();
 
   return (
-    <div id="coordinator-app-shell" className="flex min-h-screen bg-[#fafafa] font-sans text-[#222222]">
-      {/* Desktop Sidebar (Creativa Design System) */}
-      <aside className="hidden lg:flex w-64 bg-white border-r border-[#e5e5e5] flex-col shrink-0 sticky top-0 h-screen z-30">
-        {/* Brand Header */}
-        <div className="p-6 border-b border-[#e5e5e5] flex items-center justify-between">
+    <div id="coordinator-app-shell" className="min-h-screen bg-[#fafafa] font-sans text-[#222222] flex flex-col">
+      {/* Floating Island Navigation Bar */}
+      <div className="sticky top-2.5 z-40 w-full px-3 sm:px-6">
+        <header className="max-w-5xl mx-auto floating-nav-island rounded-full px-3 py-1.5 flex items-center justify-between gap-2 sm:gap-4 transition-all">
+          {/* Brand Identity */}
           <div
-            className="flex items-center gap-3 cursor-pointer select-none"
+            className="flex items-center gap-2 cursor-pointer select-none pl-1 shrink-0"
             onClick={() => onSelectTab('dashboard')}
           >
             <img
               src="/logo.png"
-              alt="Creativa Logo"
-              className="h-10 w-auto object-contain shrink-0 drop-shadow-xs"
+              alt="Creativa"
+              className="h-7 w-auto object-contain shrink-0"
             />
-            <div>
-              <span className="font-bold text-lg tracking-tight text-[#222222] block leading-tight">
+            <div className="hidden sm:block leading-tight">
+              <span className="font-extrabold text-xs tracking-tight text-[#222222] block">
                 Creativa <span className="text-[#004e9e]">Hub</span>
               </span>
-              <span className="text-[10px] uppercase font-bold text-[#9e9e9e] tracking-wider">
-                Aswan Branch
+              <span className="text-[9px] uppercase font-bold text-[#9e9e9e] tracking-wider block -mt-0.5">
+                Aswan
               </span>
             </div>
           </div>
-        </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentTab === item.id;
-            return (
-              <button
-                key={item.id}
-                id={`nav-tab-${item.id}`}
-                onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-full font-semibold text-sm transition-all duration-150 ${
-                  isActive
-                    ? 'bg-[#004e9e] text-white shadow-xs'
-                    : 'text-[#616161] hover:bg-[#fafafa] hover:text-[#004e9e]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon
-                    className={`w-4 h-4 transition-colors ${
-                      isActive ? 'text-white' : 'text-[#9e9e9e]'
-                    }`}
-                  />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge !== undefined && (
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    isActive ? 'bg-white text-[#004e9e]' : 'bg-[#fef2f2] text-[#b91c1c]'
-                  }`}>
-                    {item.badge}
+          {/* Center: Desktop Nav Pill Tabs with Motion Layout */}
+          <nav className="hidden md:flex items-center gap-1 bg-[#f5f5f5] p-1 rounded-full border border-[#e5e5e5]/80">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  id={`nav-tab-${item.id}`}
+                  onClick={() => onSelectTab(item.id)}
+                  className={`relative flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-colors duration-150 cursor-pointer ${
+                    isActive ? 'text-white' : 'text-[#616161] hover:text-[#004e9e]'
+                  }`}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="coordinator-active-pill"
+                      className="absolute inset-0 bg-[#004e9e] rounded-full shadow-xs glow-primary-soft"
+                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{item.label}</span>
+                    {item.badge !== undefined && (
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                          isActive
+                            ? 'bg-white text-[#004e9e]'
+                            : 'bg-rose-100 text-rose-700'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                   </span>
-                )}
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </nav>
 
-          <div className="pt-4 mt-2 border-t border-[#e5e5e5] space-y-2">
-            <p className="px-4 text-[10px] font-bold text-[#9e9e9e] uppercase tracking-wider mb-2">
-              Portals & Audits
-            </p>
+          {/* Right: Quick Utility Actions */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <button
               onClick={onOpenStudentDemo}
-              id="sidebar-student-portal-btn"
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-semibold text-xs text-[#004e9e] bg-[#e6eff8] hover:bg-[#d6e5f5] transition-colors"
+              id="top-student-view-btn"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold text-[#004e9e] bg-[#e6eff8] hover:bg-[#d6e5f5] transition-colors cursor-pointer"
+              title="Launch Student View Simulator"
             >
-              <QrCode className="w-4 h-4 text-[#004e9e]" />
-              <span>Launch Student Portal</span>
+              <QrCode className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Student View</span>
             </button>
+
             <button
               onClick={onOpenAuditLog}
               id="sidebar-audit-log-btn"
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-xs text-[#616161] hover:bg-[#fafafa] hover:text-[#222222] transition-colors"
-            >
-              <History className="w-4 h-4 text-[#9e9e9e]" />
-              <span>System Audit Log</span>
-            </button>
-          </div>
-        </nav>
-
-        {/* User Profile Footer */}
-        <div className="p-4 border-t border-[#e5e5e5] bg-white">
-          <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] mb-2">
-            <div className="w-9 h-9 rounded-full bg-[#e6eff8] border border-[#004e9e]/20 text-[#004e9e] font-bold flex items-center justify-center text-xs shrink-0">
-              {session?.name ? session.name.substring(0, 2).toUpperCase() : 'CO'}
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-xs font-bold truncate text-[#222222]">
-                {session?.name || 'Admin Coordinator'}
-              </p>
-              <p className="text-[11px] text-[#9e9e9e] truncate font-mono">
-                {session?.email || 'coordinator@hub.gov.eg'}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              logoutCoordinator();
-              onLogout();
-            }}
-            id="sidebar-logout-btn"
-            className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-[#616161] hover:text-[#b91c1c] hover:bg-[#fef2f2] rounded-full transition-colors"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Sign Out</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Column */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        {/* Mobile Header */}
-        <header className="lg:hidden sticky top-0 z-40 bg-white border-b border-[#e5e5e5] px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-[#616161] hover:text-[#222222] rounded-full hover:bg-[#fafafa]"
-              aria-label="Toggle Navigation"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-            <div className="flex items-center gap-2">
-              <img
-                src="/logo.png"
-                alt="Creativa Logo"
-                className="h-7 w-auto object-contain shrink-0"
-              />
-              <span className="font-bold text-base tracking-tight text-[#222222]">
-                Creativa <span className="text-[#004e9e]">Hub</span>
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onOpenStudentDemo}
-              className="p-2 text-[#004e9e] hover:bg-[#e6eff8] rounded-full"
-              title="Student QR View"
-            >
-              <QrCode className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onOpenAuditLog}
-              className="p-2 text-[#616161] hover:bg-[#fafafa] rounded-full"
+              className="p-1.5 rounded-full text-[#616161] hover:text-[#222222] hover:bg-[#f0f0f0] transition-colors cursor-pointer"
               title="Audit Log"
             >
-              <History className="w-4 h-4" />
+              <History className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Coordinator Avatar & Signout */}
+            <div className="flex items-center gap-1 pl-1 border-l border-[#e5e5e5]">
+              <div
+                className="w-6 h-6 rounded-full bg-[#004e9e] text-white font-bold flex items-center justify-center text-[10px] select-none"
+                title={session?.email || 'Coordinator'}
+              >
+                {session?.name ? session.name.substring(0, 2).toUpperCase() : 'CO'}
+              </div>
+              <button
+                onClick={() => {
+                  logoutCoordinator();
+                  onLogout();
+                }}
+                id="sidebar-logout-btn"
+                className="p-1.5 rounded-full text-[#616161] hover:text-[#b91c1c] hover:bg-rose-50 transition-colors cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Mobile Menu Toggle Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 text-[#616161] hover:text-[#222222] rounded-full hover:bg-[#fafafa]"
+              aria-label="Toggle Navigation"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </header>
+      </div>
 
-        {/* Mobile Navigation Drawer */}
+      {/* Mobile Navigation Drawer */}
+      <AnimatePresence>
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-[#222222]/40 backdrop-blur-xs flex">
-            <div className="w-72 bg-white h-full flex flex-col shadow-2xl p-4">
-              <div className="flex items-center justify-between pb-4 border-b border-[#e5e5e5]">
-                <div className="flex items-center gap-2.5">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="md:hidden fixed inset-0 z-50 bg-[#222222]/35 backdrop-blur-xs flex"
+          >
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+              className="w-64 bg-white h-full flex flex-col shadow-xl p-4"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-[#e5e5e5]">
+                <div className="flex items-center gap-2">
                   <img
                     src="/logo.png"
                     alt="Creativa Logo"
-                    className="h-8 w-auto object-contain shrink-0"
+                    className="h-7 w-auto object-contain shrink-0"
                   />
-                  <span className="font-bold text-base text-[#222222]">
+                  <span className="font-extrabold text-sm text-[#222222]">
                     Creativa <span className="text-[#004e9e]">Hub</span>
                   </span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 text-[#9e9e9e] hover:text-[#222222] rounded-full hover:bg-[#fafafa]"
+                  className="p-1 text-[#9e9e9e] hover:text-[#222222] rounded-full"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <nav className="flex-1 py-4 space-y-1.5 overflow-y-auto">
+              <nav className="flex-1 py-3 space-y-1 overflow-y-auto">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = currentTab === item.id;
@@ -281,20 +258,22 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                         onSelectTab(item.id);
                         setMobileMenuOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-4 py-2.5 rounded-full font-semibold text-sm ${
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-full font-semibold text-xs transition-colors ${
                         isActive
-                          ? 'bg-[#004e9e] text-white'
+                          ? 'bg-[#004e9e] text-white shadow-xs'
                           : 'text-[#616161] hover:bg-[#fafafa]'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#9e9e9e]'}`} />
+                      <div className="flex items-center gap-2.5">
+                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-[#9e9e9e]'}`} />
                         <span>{item.label}</span>
                       </div>
                       {item.badge !== undefined && (
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          isActive ? 'bg-white text-[#004e9e]' : 'bg-[#fef2f2] text-[#b91c1c]'
-                        }`}>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                            isActive ? 'bg-white text-[#004e9e]' : 'bg-rose-100 text-rose-700'
+                          }`}
+                        >
                           {item.badge}
                         </span>
                       )}
@@ -309,74 +288,76 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                     onOpenStudentDemo();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#004e9e] bg-[#e6eff8] rounded-full"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-[#004e9e] bg-[#e6eff8] rounded-full"
                 >
-                  <QrCode className="w-4 h-4 text-[#004e9e]" />
-                  <span>Student Assessment Portal</span>
+                  <QrCode className="w-3.5 h-3.5 text-[#004e9e]" />
+                  <span>Student Portal</span>
                 </button>
                 <button
                   onClick={() => {
                     logoutCoordinator();
                     onLogout();
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#b91c1c] hover:bg-[#fef2f2] rounded-full"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-[#b91c1c] hover:bg-rose-50 rounded-full"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>
                 </button>
               </div>
-            </div>
+            </motion.div>
             <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />
-          </div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* Top Header Bar for Desktop */}
-        <header className="hidden lg:flex min-h-20 bg-white border-b border-[#e5e5e5] px-8 items-center justify-between shrink-0">
+      {/* Main Container */}
+      <div className="max-w-5xl w-full mx-auto px-4 sm:px-6 pt-3 pb-8 flex-1 flex flex-col">
+        {/* Compact View Header Banner */}
+        <div className="flex items-center justify-between gap-3 pb-3 mb-4 border-b border-[#e5e5e5]/80">
           <div>
-            <h2 className="text-2xl font-bold text-[#222222] tracking-tight">
+            <h2 className="text-base sm:text-lg font-extrabold text-[#222222] tracking-tight">
               {headerMeta.title}
             </h2>
-            <p className="text-sm text-[#616161] mt-0.5">
+            <p className="text-[11px] text-[#616161]">
               {headerMeta.subtitle}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onOpenStudentDemo}
-              id="top-student-view-btn"
-              className="btn-pill-secondary text-xs"
-            >
-              <QrCode className="w-4 h-4 text-[#004e9e]" />
-              <span>Student View Simulator</span>
-            </button>
+          {currentTab === 'courses' && (
             <button
               onClick={() => onSelectTab('courses')}
               id="top-create-course-btn"
-              className="btn-pill-primary text-xs shadow-xs"
+              className="btn-pill-primary py-1.5 px-3 text-xs shadow-xs shrink-0 flex items-center gap-1"
             >
-              <Plus className="w-4 h-4" />
-              <span>+ Create New Course</span>
+              <Plus className="w-3.5 h-3.5" />
+              <span>New Course</span>
             </button>
-          </div>
-        </header>
+          )}
+        </div>
 
-        {/* Main Body */}
-        <main className="flex-1 p-6 sm:p-8 max-w-7xl w-full">
-          {children}
+        {/* Animated View Content */}
+        <main className="flex-1">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentTab}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
-
-        {/* Subtle Footer */}
-        <footer className="border-t border-[#e5e5e5] bg-white py-4 text-center text-xs text-[#616161] mt-auto">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span className="font-medium text-[#222222]">
-              Creativa Innovation Hub Aswan — Ministry of Communications & Information Technology (MCIT)
-            </span>
-            <span className="text-[#9e9e9e]">
-              Pre & Post-Test Assessment Portal • Creativa Design System
-            </span>
-          </div>
-        </footer>
       </div>
+
+      {/* Compact Footer */}
+      <footer className="border-t border-[#e5e5e5] bg-white py-3 text-center text-[11px] text-[#9e9e9e] mt-auto">
+        <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-1">
+          <span>Creativa Innovation Hub Aswan • Ministry of Communications & Information Technology</span>
+          <span>Pre & Post-Test Portal</span>
+        </div>
+      </footer>
     </div>
   );
 };
+

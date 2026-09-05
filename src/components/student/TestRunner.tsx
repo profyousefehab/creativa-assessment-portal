@@ -227,8 +227,9 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
 
         {/* 5-minute and 1-minute alert banners */}
         {isUrgent && (
-          <div className="bg-rose-600 text-white text-[11px] font-bold py-1 px-4 text-center">
-            ⚠️ 1 Minute Remaining! Assessment will submit automatically at 00:00.
+          <div className="bg-rose-600 text-white text-[11px] font-bold py-1 px-4 text-center flex items-center justify-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+            <span>1 Minute Remaining! Assessment will submit automatically at 00:00.</span>
           </div>
         )}
         {isWarning && !isUrgent && (
