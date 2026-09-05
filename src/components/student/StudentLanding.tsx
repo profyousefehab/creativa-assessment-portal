@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
   Clock,
   User,
   Phone,
@@ -9,13 +8,11 @@ import {
   ArrowRight,
   ArrowLeft,
   AlertCircle,
-  CheckCircle2,
-  Lock,
-  ExternalLink,
   Shield,
   Play,
-  FileText,
-  AlertTriangle,
+  FileQuestion,
+  RotateCcw,
+  Zap,
 } from 'lucide-react';
 import { Assessment, Course, Student } from '../../types';
 import {
@@ -53,6 +50,7 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
 
   const isPublished = assessment.status === 'PUBLISHED';
   const isPreTest = assessment.type === 'PRE_TEST';
+  const totalQuestions = assessment.questions?.length || 0;
   const totalPoints = assessment.questions.reduce((sum, q) => sum + (q.points || 0), 0);
 
   const handleNationalIdBlur = () => {
@@ -71,13 +69,13 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
     setErrorMessage(null);
 
     if (!isPublished) {
-      setErrorMessage('This assessment is not currently available. Please contact your coordinator.');
+      setErrorMessage('Assessment unavailable. Contact your coordinator.');
       return;
     }
 
     const cleanNationalId = nationalId.trim();
     if (!cleanNationalId) {
-      setErrorMessage('National ID is required to verify your identity.');
+      setErrorMessage('National ID is required.');
       return;
     }
 
@@ -92,7 +90,7 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
         nationalId: cleanNationalId,
       });
 
-      // 2. Check single attempt per assessment rule: If student already completed this assessment
+      // 2. Single attempt check
       const completedAttempt = getCompletedAttemptForStudent(student.id, assessment.id);
       if (completedAttempt) {
         setErrorMessage('You have already completed this assessment.');
@@ -100,19 +98,19 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
         return;
       }
 
-      // 3. Check for existing active in-progress attempt to resume immediately
+      // 3. Check for existing active in-progress attempt to resume
       const activeAttempt = getActiveAttemptForStudent(student.id, assessment.id);
       if (activeAttempt) {
-        showToast('Resuming your active assessment session...', 'info');
+        showToast('Resuming active session...', 'info');
         onStartAttempt(activeAttempt.id);
         return;
       }
 
-      // 4. Per Section 11 Step 8: Prompt for explicit Start Confirmation before starting timer
+      // 4. Start confirmation modal
       setPendingStudent(student);
       setShowStartConfirmModal(true);
     } catch (err: any) {
-      setErrorMessage(err?.message || 'An unexpected error occurred. Please try again.');
+      setErrorMessage(err?.message || 'Error verifying details. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -123,11 +121,11 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
     setIsSubmitting(true);
     try {
       const newAttempt = startStudentAttempt(pendingStudent.id, assessment.id, course.id);
-      showToast('Assessment started. Good luck!', 'success');
+      showToast('Assessment started.', 'success');
       setShowStartConfirmModal(false);
       onStartAttempt(newAttempt.id);
     } catch (err: any) {
-      setErrorMessage(err?.message || 'An unexpected error occurred while starting.');
+      setErrorMessage(err?.message || 'Error starting assessment.');
       setShowStartConfirmModal(false);
     } finally {
       setIsSubmitting(false);
@@ -135,30 +133,30 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-between py-6 px-4 sm:px-6 text-[#222222]">
-      {/* Top Bar with Creativa Branding */}
-      <header className="max-w-md w-full mx-auto flex items-center justify-between pb-4">
-        <div className="flex items-center gap-2.5">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-between py-5 px-4 text-[#222222]">
+      {/* Compact Header */}
+      <header className="max-w-md w-full mx-auto flex items-center justify-between pb-3">
+        <div className="flex items-center gap-2">
           <img
             src="/logo.png"
-            alt="Creativa Logo"
-            className="h-10 w-auto object-contain shrink-0"
+            alt="Creativa"
+            className="h-9 w-auto object-contain shrink-0"
           />
           <div>
-            <span className="font-extrabold text-sm text-[#222222] tracking-tight block">
-              Creativa Innovation Hub
+            <span className="font-extrabold text-sm text-[#222222] tracking-tight block leading-tight">
+              Creativa Hub
             </span>
-            <span className="text-[11px] text-[#004e9e] font-bold block -mt-0.5">
-              Aswan Branch • Portal
+            <span className="text-[10px] text-[#004e9e] font-bold block">
+              Aswan
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {onBackToHome && (
             <button
               onClick={onBackToHome}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#616161] hover:text-[#004e9e] hover:bg-white border border-[#e5e5e5] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-[#616161] hover:text-[#004e9e] hover:bg-white border border-[#e5e5e5] transition-all cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -168,153 +166,154 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
           {onSwitchToCoordinator && (
             <button
               onClick={onSwitchToCoordinator}
-              className="inline-flex items-center gap-1.5 text-xs text-[#616161] hover:text-[#004e9e] font-semibold px-3 py-1.5 rounded-full hover:bg-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 text-xs text-[#616161] hover:text-[#004e9e] font-semibold px-2.5 py-1 rounded-full hover:bg-white transition-colors cursor-pointer"
+              title="Coordinator Login"
             >
               <Shield className="w-3.5 h-3.5 text-[#004e9e]" />
-              <span>Coordinator Login</span>
+              <span className="hidden sm:inline">Coordinator</span>
             </button>
           )}
         </div>
       </header>
 
       {/* Main Card */}
-      <div className="max-w-md w-full mx-auto bg-white rounded-3xl border border-[#e5e5e5] shadow-sm overflow-hidden animate-in fade-in zoom-in-95">
-        {/* Banner Header */}
-        <div className="bg-[#004e9e] text-white p-6 sm:p-7 relative overflow-hidden">
+      <div className="max-w-md w-full mx-auto bg-white rounded-3xl border border-[#e5e5e5] shadow-xs overflow-hidden animate-in fade-in">
+        {/* Course & Assessment Info */}
+        <div className="bg-[#004e9e] text-white p-5 sm:p-6">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
-              <span
-                className={`px-3 py-0.5 text-xs font-bold uppercase tracking-wider rounded-full ${
-                  isPreTest ? 'bg-[#e6eff8] text-[#004e9e]' : 'bg-[#fef3e2] text-[#b45309]'
-                }`}
-              >
-                {isPreTest ? 'Pre-Test' : 'Post-Test'}
-              </span>
-              <span className="text-xs text-white/90 font-medium flex items-center gap-1 bg-white/15 px-2.5 py-0.5 rounded-full">
-                <Clock className="w-3.5 h-3.5 text-white/80" />
-                {assessment.durationMinutes} Minutes
-              </span>
-            </div>
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center p-1 shadow-xs shrink-0">
-              <img src="/logo.png" alt="Creativa" className="h-full w-auto object-contain" />
-            </div>
+            <span
+              className={`px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-full ${
+                isPreTest ? 'bg-[#e6eff8] text-[#004e9e]' : 'bg-[#fef3e2] text-[#b45309]'
+              }`}
+            >
+              {isPreTest ? 'Pre-Test' : 'Post-Test'}
+            </span>
+            <span className="text-xs text-white/80 font-medium truncate">
+              {course.instructorName}
+            </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white mt-1">
+          <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
             {course.name}
           </h1>
 
-          <p className="text-xs text-white/80 mt-2">
-            Instructor: <strong className="text-white">{course.instructorName}</strong>
-          </p>
+          {/* Micro Specs */}
+          <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-white/15 text-xs text-white/90">
+            <span className="inline-flex items-center gap-1 bg-white/15 px-2.5 py-0.5 rounded-full font-medium">
+              <Clock className="w-3.5 h-3.5" />
+              {assessment.durationMinutes}m
+            </span>
+            <span className="inline-flex items-center gap-1 bg-white/15 px-2.5 py-0.5 rounded-full font-medium">
+              <FileQuestion className="w-3.5 h-3.5" />
+              {totalQuestions} Qs
+            </span>
+            <span className="inline-flex items-center gap-1 bg-white/15 px-2.5 py-0.5 rounded-full font-medium">
+              <Zap className="w-3.5 h-3.5" />
+              {totalPoints} Pts
+            </span>
+          </div>
         </div>
 
-        {/* Status / Instructions Section */}
-        <div className="p-6 space-y-5">
-          {/* Assessment Unavailable Notice (Section 24) */}
-          {!isPublished ? (
-            <div className="p-5 rounded-2xl bg-[#fef3e2] border border-[#f8af43]/30 text-[#b45309] space-y-2">
-              <div className="flex items-center gap-2 font-bold text-sm">
-                <AlertCircle className="w-5 h-5 text-[#b45309] shrink-0" />
-                <span>Assessment Unavailable</span>
+        {/* Content & Form */}
+        <div className="p-5 sm:p-6 space-y-4">
+          {/* Quick Notice Chips (Replaces 4 verbose bullet points) */}
+          {isPublished ? (
+            <div className="grid grid-cols-3 gap-2 text-center text-[11px] text-[#616161]">
+              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-xl py-1.5 px-1 font-medium">
+                ⏱️ Timed
               </div>
-              <p className="text-xs text-[#b45309] leading-relaxed">
-                This assessment is not currently available. Please contact your course coordinator at Creativa Aswan to activate it.
-              </p>
+              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-xl py-1.5 px-1 font-medium">
+                💾 Auto-save
+              </div>
+              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-xl py-1.5 px-1 font-medium">
+                🔒 1 Attempt
+              </div>
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] text-xs text-[#616161] space-y-1.5">
-              <span className="font-bold text-[#222222] uppercase tracking-wider block text-[10px]">
-                Test Instructions:
-              </span>
-              <p>• Duration: <strong>{assessment.durationMinutes} minutes</strong> from when you press Start.</p>
-              <p>• All questions must be answered before submitting.</p>
-              <p>• Your responses are automatically saved as you answer.</p>
-              <p>• A valid National ID is required to record your official attendance.</p>
+            <div className="p-3.5 rounded-2xl bg-[#fef3e2] border border-[#f8af43]/30 text-[#b45309] text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>Assessment is currently closed.</span>
             </div>
           )}
 
-          {/* Error Message Box */}
+          {/* Error Banner */}
           {errorMessage && (
-            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-              <div className="font-semibold">{errorMessage}</div>
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span className="font-medium">{errorMessage}</span>
             </div>
           )}
 
-          {/* Student Registration & Start Form */}
+          {/* Student Form */}
           {isPublished && (
-            <form onSubmit={handleFormSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-[#222222] uppercase tracking-wider mb-1">
-                  National ID (الرقم القومي) *
+                <label className="block text-[11px] font-bold text-[#616161] uppercase tracking-wider mb-1">
+                  National ID (الرقم القومي)
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     required
-                    placeholder="14-digit National ID"
+                    placeholder="14 digits"
                     value={nationalId}
                     onChange={(e) => setNationalId(e.target.value)}
                     onBlur={handleNationalIdBlur}
-                    className="w-full pl-11 pr-4 py-3 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white transition-all font-medium text-[#222222]"
+                    className="w-full pl-10 pr-3 py-2.5 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white text-[#222222] font-semibold"
                   />
-                  <CreditCard className="w-4 h-4 text-[#9e9e9e] absolute left-4 top-3.5 pointer-events-none" />
+                  <CreditCard className="w-4 h-4 text-[#9e9e9e] absolute left-3.5 top-3 pointer-events-none" />
                 </div>
-                <p className="text-[10px] text-[#9e9e9e] mt-0.5 ml-3">
-                  Used to verify your unique test attempt.
-                </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#222222] uppercase tracking-wider mb-1">
-                  Full Name (الاسم بالكامل) *
+                <label className="block text-[11px] font-bold text-[#616161] uppercase tracking-wider mb-1">
+                  Full Name (الاسم بالكامل)
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Sara Mohamed Ahmed"
+                    placeholder="Your full name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white transition-all font-medium text-[#222222]"
+                    className="w-full pl-10 pr-3 py-2.5 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-xs focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white text-[#222222] font-medium"
                   />
-                  <User className="w-4 h-4 text-[#9e9e9e] absolute left-4 top-3.5 pointer-events-none" />
+                  <User className="w-4 h-4 text-[#9e9e9e] absolute left-3.5 top-3 pointer-events-none" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-[#222222] uppercase tracking-wider mb-1">
-                    Phone Number *
+                  <label className="block text-[11px] font-bold text-[#616161] uppercase tracking-wider mb-1">
+                    Phone
                   </label>
                   <div className="relative">
                     <input
                       type="tel"
                       required
-                      placeholder="01012345678"
+                      placeholder="010..."
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-xs focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white transition-all font-medium text-[#222222]"
+                      className="w-full pl-9 pr-3 py-2 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-xs focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white text-[#222222] font-medium"
                     />
-                    <Phone className="w-3.5 h-3.5 text-[#9e9e9e] absolute left-3.5 top-3 pointer-events-none" />
+                    <Phone className="w-3.5 h-3.5 text-[#9e9e9e] absolute left-3 top-2.5 pointer-events-none" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#222222] uppercase tracking-wider mb-1">
-                    Email Address *
+                  <label className="block text-[11px] font-bold text-[#616161] uppercase tracking-wider mb-1">
+                    Email
                   </label>
                   <div className="relative">
                     <input
                       type="email"
                       required
-                      placeholder="name@example.com"
+                      placeholder="name@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-xs focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white transition-all font-medium text-[#222222]"
+                      className="w-full pl-9 pr-3 py-2 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-xs focus:outline-none focus:ring-2 focus:ring-[#004e9e] focus:bg-white text-[#222222] font-medium"
                     />
-                    <Mail className="w-3.5 h-3.5 text-[#9e9e9e] absolute left-3.5 top-3 pointer-events-none" />
+                    <Mail className="w-3.5 h-3.5 text-[#9e9e9e] absolute left-3 top-2.5 pointer-events-none" />
                   </div>
                 </div>
               </div>
@@ -322,9 +321,9 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-3 btn-pill-primary py-3.5 px-5 font-bold text-sm shadow-xs disabled:opacity-50"
+                className="w-full mt-2 btn-pill-primary py-3 px-5 font-bold text-xs shadow-xs disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                <span>{isSubmitting ? 'Verifying...' : 'Start Assessment'}</span>
+                <span>{isSubmitting ? 'Checking...' : 'Start Assessment'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
@@ -332,82 +331,53 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="max-w-md w-full mx-auto text-center pt-4 text-xs text-[#9e9e9e]">
-        <span>Creativa Innovation Hub Aswan • Standard Assessment Framework</span>
+      {/* Concise Footer */}
+      <footer className="text-center pt-4 text-[11px] text-[#9e9e9e]">
+        Creativa Innovation Hub • Aswan
       </footer>
 
-      {/* Start Confirmation Modal (Section 11 Step 8) */}
+      {/* Start Confirmation Modal */}
       {showStartConfirmModal && pendingStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl max-w-md w-full p-6 sm:p-8 text-[#222222] animate-in zoom-in-95 space-y-5">
+          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl max-w-sm w-full p-6 text-[#222222] animate-in zoom-in-95 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center shrink-0">
                 <Play className="w-5 h-5 ml-0.5" />
               </div>
               <div>
-                <h3 className="text-lg font-extrabold text-[#222222] tracking-tight">
-                  Ready to Start?
+                <h3 className="text-base font-extrabold text-[#222222] tracking-tight">
+                  Ready to start?
                 </h3>
                 <p className="text-xs text-[#616161]">
-                  Creativa Innovation Hub • Assessment Confirmation
+                  {pendingStudent.fullName}
                 </p>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] space-y-2.5 text-xs">
-              <div className="flex items-center justify-between">
+            <div className="p-3 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] text-xs space-y-1.5">
+              <div className="flex justify-between">
                 <span className="text-[#616161]">Course:</span>
-                <span className="font-bold text-[#222222] text-right truncate max-w-[200px]">
+                <span className="font-bold text-[#222222] truncate max-w-[180px]">
                   {course.name}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#616161]">Assessment:</span>
-                <span
-                  className={`px-2.5 py-0.5 rounded-full font-bold uppercase text-[10px] ${
-                    isPreTest ? 'bg-[#e6eff8] text-[#004e9e]' : 'bg-[#fef3e2] text-[#b45309]'
-                  }`}
-                >
-                  {isPreTest ? 'Pre-Test' : 'Post-Test'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#616161]">Duration:</span>
-                <span className="font-bold text-[#004e9e] flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  {assessment.durationMinutes} Minutes
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#616161]">Questions / Points:</span>
+              <div className="flex justify-between">
+                <span className="text-[#616161]">Format:</span>
                 <span className="font-bold text-[#222222]">
-                  {assessment.questions.length} Questions ({totalPoints} Pts)
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-[#e5e5e5]">
-                <span className="text-[#616161]">Student:</span>
-                <span className="font-bold text-[#222222]">
-                  {pendingStudent.fullName}
+                  {assessment.durationMinutes} mins • {totalQuestions} questions
                 </span>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-[#fef3e2] border border-[#f8af43]/30 text-[#b45309] text-xs space-y-1">
-              <div className="font-bold flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>Timer Notice</span>
-              </div>
-              <p className="leading-relaxed text-[11px]">
-                Once you click <strong>Begin Assessment</strong>, the {assessment.durationMinutes}-minute countdown begins immediately and cannot be paused. When time expires, your answers are automatically submitted.
-              </p>
-            </div>
+            <p className="text-[11px] text-[#b45309] bg-[#fef3e2] p-2.5 rounded-xl border border-[#f8af43]/30">
+              ⚠️ Timer begins immediately and cannot be paused.
+            </p>
 
-            <div className="pt-3 border-t border-[#e5e5e5] flex items-center justify-end gap-3">
+            <div className="pt-2 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowStartConfirmModal(false)}
-                className="btn-pill-secondary py-2.5 px-5 text-xs font-bold"
+                className="btn-pill-secondary py-2 px-4 text-xs font-bold"
               >
                 Cancel
               </button>
@@ -415,10 +385,10 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleConfirmStart}
-                className="btn-pill-primary py-2.5 px-6 text-xs font-bold shadow-xs flex items-center gap-1.5"
+                className="btn-pill-primary py-2 px-5 text-xs font-bold shadow-xs flex items-center gap-1"
               >
-                <span>{isSubmitting ? 'Starting...' : 'Begin Assessment'}</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>{isSubmitting ? 'Starting...' : 'Begin Now'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -427,3 +397,4 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
     </div>
   );
 };
+
