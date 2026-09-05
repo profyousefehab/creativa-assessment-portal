@@ -113,32 +113,32 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
   const headerMeta = getHeaderMeta();
 
   return (
-    <div id="coordinator-app-shell" className="min-h-screen bg-[#fafafa] font-sans text-[#222222] flex flex-col">
+    <div id="coordinator-app-shell" className="min-h-dvh bg-[#fafafa] font-sans text-[#222222] flex flex-col overflow-x-clip">
       {/* Floating Island Navigation Bar */}
-      <div className="sticky top-2 z-40 w-full px-4 sm:px-6 lg:px-8">
-        <header className="max-w-7xl mx-auto floating-nav-island rounded-full px-3.5 py-1.5 flex items-center justify-between gap-2 sm:gap-4 transition-all">
+      <div className="sticky top-1.5 z-40 w-full px-3 sm:px-6 lg:px-8">
+        <header className="max-w-7xl mx-auto floating-nav-island rounded-full px-2.5 sm:px-3.5 py-1 flex items-center justify-between gap-1.5 sm:gap-3 transition-all min-w-0">
           {/* Brand Identity */}
           <div
-            className="flex items-center gap-2 cursor-pointer select-none pl-1 shrink-0"
+            className="flex items-center gap-2 cursor-pointer select-none pl-0.5 sm:pl-1 shrink-0 min-w-0"
             onClick={() => onSelectTab('dashboard')}
           >
             <img
               src="/logo.png"
               alt="Creativa"
-              className="h-6 w-auto object-contain shrink-0"
+              className="h-5 sm:h-5.5 w-auto object-contain shrink-0"
             />
-            <div className="hidden sm:block leading-tight">
-              <span className="font-extrabold text-xs tracking-tight text-[#222222] block">
+            <div className="hidden sm:block leading-tight min-w-0">
+              <span className="font-extrabold text-[11.5px] tracking-tight text-[#222222] block truncate">
                 Creativa <span className="text-[#004e9e]">Hub</span>
               </span>
-              <span className="text-[8.5px] uppercase font-bold text-[#9e9e9e] tracking-wider block -mt-0.5">
+              <span className="text-[8px] uppercase font-bold text-[#9e9e9e] tracking-wider block -mt-0.5">
                 Aswan
               </span>
             </div>
           </div>
 
           {/* Center: Desktop Nav Pill Tabs with Motion Layout */}
-          <nav className="hidden md:flex items-center gap-1 bg-[#f5f5f5] p-1 rounded-full border border-slate-200/80">
+          <nav className="hidden lg:flex items-center gap-0.5 bg-[#f5f5f5] p-0.5 rounded-full border border-slate-200/80 min-w-0">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
@@ -147,7 +147,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                   key={item.id}
                   id={`nav-tab-${item.id}`}
                   onClick={() => onSelectTab(item.id)}
-                  className={`relative flex items-center gap-1.5 px-3 py-1 rounded-full text-[11.5px] font-medium transition-colors duration-150 cursor-pointer ${
+                  className={`relative flex items-center gap-1.5 px-2.5 xl:px-3 py-0.5 rounded-full text-[11px] xl:text-[11.5px] font-medium transition-colors duration-150 cursor-pointer ${
                     isActive ? 'text-white font-semibold' : 'text-[#616161] hover:text-[#004e9e]'
                   }`}
                 >
@@ -159,7 +159,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                     />
                   )}
                   <span className="relative z-10 flex items-center gap-1.5">
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
                     <span>{item.label}</span>
                     {item.badge !== undefined && (
                       <span
@@ -178,13 +178,13 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
             })}
           </nav>
 
-          {/* Right: Quick Utility Actions */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          {/* Right: Quick Utility Actions — compact on small screens */}
+          <div className="flex items-center gap-0.5 sm:gap-1.5 shrink-0">
             <button
               onClick={handleSync}
               disabled={isSyncing}
               id="top-cloud-sync-btn"
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors cursor-pointer ${
+              className={`hidden sm:inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-semibold transition-colors cursor-pointer ${
                 isSyncing
                   ? 'bg-amber-50 text-amber-700 border border-amber-200'
                   : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
@@ -192,32 +192,32 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
               title="Sync courses & assessments to Cloud Firestore"
             >
               <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin text-amber-600' : 'text-emerald-600'}`} />
-              <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Cloud Sync'}</span>
+              <span className="hidden md:inline">{isSyncing ? 'Syncing...' : 'Cloud Sync'}</span>
             </button>
 
             <button
               onClick={onOpenStudentDemo}
               id="top-student-view-btn"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold text-[#004e9e] bg-[#e6eff8] hover:bg-[#d6e5f5] transition-colors cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-semibold text-[#004e9e] bg-[#e6eff8] hover:bg-[#d6e5f5] transition-colors cursor-pointer"
               title="Launch Student View Simulator"
             >
               <QrCode className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Student View</span>
+              <span className="hidden md:inline">Student View</span>
             </button>
 
             <button
               onClick={onOpenAuditLog}
               id="sidebar-audit-log-btn"
-              className="p-1.5 rounded-full text-[#616161] hover:text-[#222222] hover:bg-[#f0f0f0] transition-colors cursor-pointer"
+              className="hidden sm:inline-flex p-1.5 rounded-full text-[#616161] hover:text-[#222222] hover:bg-[#f0f0f0] transition-colors cursor-pointer"
               title="Audit Log"
             >
               <History className="w-3.5 h-3.5" />
             </button>
 
-            {/* Coordinator Avatar & Signout */}
-            <div className="flex items-center gap-1 pl-1 border-l border-[#e5e5e5]">
+            {/* Coordinator Avatar & Signout — avatar only on xs; full on sm+ */}
+            <div className="hidden sm:flex items-center gap-1 pl-1 border-l border-[#e5e5e5]">
               <div
-                className="w-6 h-6 rounded-full bg-[#004e9e] text-white font-bold flex items-center justify-center text-[10px] select-none"
+                className="w-5.5 h-5.5 rounded-full bg-[#004e9e] text-white font-bold flex items-center justify-center text-[9.5px] select-none"
                 title={session?.email || 'Coordinator'}
               >
                 {session?.name ? session.name.substring(0, 2).toUpperCase() : 'CO'}
@@ -228,7 +228,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
                   onLogout();
                 }}
                 id="sidebar-logout-btn"
-                className="p-1.5 rounded-full text-[#616161] hover:text-[#b91c1c] hover:bg-rose-50 transition-colors cursor-pointer"
+                className="p-1 rounded-full text-[#616161] hover:text-[#b91c1c] hover:bg-rose-50 transition-colors cursor-pointer"
                 title="Sign Out"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -238,7 +238,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
             {/* Mobile Menu Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 text-[#616161] hover:text-[#222222] rounded-full hover:bg-[#fafafa]"
+              className="lg:hidden p-1.5 text-[#616161] hover:text-[#222222] rounded-full hover:bg-[#fafafa]"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -254,29 +254,29 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="md:hidden fixed inset-0 z-50 bg-[#222222]/35 backdrop-blur-xs flex"
+            className="lg:hidden fixed inset-0 z-50 bg-[#222222]/35 backdrop-blur-xs flex"
           >
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              className="w-64 bg-white h-full flex flex-col shadow-xl p-4"
+              className="w-[min(16rem,85vw)] max-w-full bg-white h-full max-h-dvh flex flex-col shadow-xl p-4 overflow-y-auto"
             >
               <div className="flex items-center justify-between pb-3 border-b border-[#e5e5e5]">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <img
                     src="/logo.png"
                     alt="Creativa Logo"
                     className="h-7 w-auto object-contain shrink-0"
                   />
-                  <span className="font-extrabold text-sm text-[#222222]">
+                  <span className="font-extrabold text-sm text-[#222222] truncate">
                     Creativa <span className="text-[#004e9e]">Hub</span>
                   </span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1 text-[#9e9e9e] hover:text-[#222222] rounded-full"
+                  className="p-1 text-[#9e9e9e] hover:text-[#222222] rounded-full shrink-0"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -320,6 +320,27 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
               <div className="pt-3 border-t border-[#e5e5e5] space-y-2">
                 <button
                   onClick={() => {
+                    handleSync();
+                    setMobileMenuOpen(false);
+                  }}
+                  disabled={isSyncing}
+                  className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isSyncing ? 'Syncing...' : 'Cloud Sync'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    onOpenAuditLog();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-[#616161] bg-[#fafafa] border border-[#e5e5e5] rounded-full"
+                >
+                  <History className="w-3.5 h-3.5" />
+                  <span>Audit Log</span>
+                </button>
+                <button
+                  onClick={() => {
                     onOpenStudentDemo();
                     setMobileMenuOpen(false);
                   }}
@@ -346,14 +367,14 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
       </AnimatePresence>
 
       {/* Main Container */}
-      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-8 flex-1 flex flex-col">
+      <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-2 sm:pt-2.5 pb-5 flex-1 flex flex-col min-w-0">
         {/* View Header Banner with Clean Modern Typography */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 mb-4 border-b border-slate-200/60">
-          <div>
-            <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 mb-3 border-b border-slate-200/60">
+          <div className="min-w-0">
+            <h1 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight break-words">
               {headerMeta.title}
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 break-words">
               {headerMeta.subtitle}
             </p>
           </div>
@@ -386,7 +407,7 @@ export const CoordinatorLayout: React.FC<CoordinatorLayoutProps> = ({
       </div>
 
       {/* Minimal Footer */}
-      <footer className="py-4 text-center text-[11px] font-medium text-slate-400 mt-auto">
+      <footer className="py-2 text-center text-[10px] font-medium text-slate-400 mt-auto">
         Creativa Aswan Team
       </footer>
     </div>

@@ -194,7 +194,7 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-between py-4 px-3 sm:px-4 text-[#222222]">
+    <div className="min-h-dvh bg-[#fafafa] flex flex-col justify-between py-4 px-3 sm:px-4 text-[#222222] overflow-x-clip">
       {/* Compact Header */}
       <header className="max-w-md w-full mx-auto flex items-center justify-between pb-2.5 border-b border-[#e5e5e5]">
         <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
             <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.2 rounded-full bg-white/15 text-white backdrop-blur-xs">
               {isPreTest ? 'Pre-Test Assessment' : 'Post-Test Assessment'}
             </span>
-            <span className="text-xs text-white/80 font-medium truncate max-w-[150px]">
+            <span className="text-xs text-white/80 font-medium truncate min-w-0 max-w-[40%] sm:max-w-[150px]">
               {course.instructorName}
             </span>
           </div>
@@ -277,18 +277,18 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
         <div className="p-4 sm:p-5 space-y-3.5">
           {/* Quick Notice Chips (Clean Lucide Icons - Zero Emojis) */}
           {isPublished ? (
-            <div className="grid grid-cols-3 gap-1.5 text-center text-[10px] text-[#616161]">
-              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg py-1 px-1 font-semibold flex items-center justify-center gap-1">
-                <Clock className="w-3 h-3 text-[#004e9e]" />
+            <div className="grid grid-cols-3 gap-1 text-center text-[9px] sm:text-[10px] text-[#616161]">
+              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg py-1.5 px-0.5 font-semibold flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 min-w-0">
+                <Clock className="w-3 h-3 text-[#004e9e] shrink-0" />
                 <span>Timed</span>
               </div>
-              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg py-1 px-1 font-semibold flex items-center justify-center gap-1">
-                <Save className="w-3 h-3 text-[#004e9e]" />
+              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg py-1.5 px-0.5 font-semibold flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 min-w-0">
+                <Save className="w-3 h-3 text-[#004e9e] shrink-0" />
                 <span>Auto-save</span>
               </div>
-              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg py-1 px-1 font-semibold flex items-center justify-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-[#004e9e]" />
-                <span>1 Attempt Only</span>
+              <div className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg py-1.5 px-0.5 font-semibold flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 min-w-0">
+                <ShieldCheck className="w-3 h-3 text-[#004e9e] shrink-0" />
+                <span className="leading-tight">1 Attempt</span>
               </div>
             </div>
           ) : (
@@ -470,13 +470,13 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
       {/* Start Confirmation Modal with Framer Motion */}
       <AnimatePresence>
         {showStartConfirmModal && pendingStudent && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-3">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-3 sm:p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 8 }}
               transition={{ duration: 0.18 }}
-              className="bg-white rounded-2xl border border-[#e5e5e5] shadow-xl glow-card max-w-sm w-full p-5 text-[#222222] space-y-3"
+              className="bg-white rounded-2xl border border-[#e5e5e5] shadow-xl glow-card w-full max-w-sm max-h-[min(90dvh,560px)] overflow-y-auto p-5 text-[#222222] space-y-3"
             >
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center shrink-0">
@@ -493,9 +493,9 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
               </div>
 
               <div className="p-2.5 rounded-xl bg-[#fafafa] border border-[#e5e5e5] text-[11px] space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-[#616161]">Course:</span>
-                  <span className="font-bold text-[#222222] truncate max-w-[170px]">
+                <div className="flex justify-between gap-3 min-w-0">
+                  <span className="text-[#616161] shrink-0">Course:</span>
+                  <span className="font-bold text-[#222222] text-right truncate min-w-0">
                     {course.name}
                   </span>
                 </div>
@@ -512,11 +512,11 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
                 <span>Timer begins immediately and cannot be paused.</span>
               </p>
 
-              <div className="pt-1 flex items-center justify-end gap-2">
+              <div className="pt-1 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowStartConfirmModal(false)}
-                  className="btn-pill-secondary py-1.5 px-3.5 text-xs font-semibold cursor-pointer"
+                  className="btn-pill-secondary py-2 sm:py-1.5 px-3.5 text-xs font-semibold cursor-pointer w-full sm:w-auto"
                 >
                   Cancel
                 </button>
@@ -524,7 +524,7 @@ export const StudentLanding: React.FC<StudentLandingProps> = ({
                   type="button"
                   disabled={isSubmitting}
                   onClick={handleConfirmStart}
-                  className="btn-pill-primary py-1.5 px-4 text-xs font-bold shadow-xs glow-primary-soft flex items-center gap-1 cursor-pointer"
+                  className="btn-pill-primary py-2 sm:py-1.5 px-4 text-xs font-bold shadow-xs glow-primary-soft flex items-center justify-center gap-1 cursor-pointer w-full sm:w-auto"
                 >
                   <span>{isSubmitting ? 'Starting...' : 'Begin Now'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />

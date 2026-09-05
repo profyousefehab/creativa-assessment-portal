@@ -189,28 +189,28 @@ export const CourseDetailView: React.FC<CourseDetailViewProps> = ({
           </div>
 
           {/* Assessment Metrics */}
-          <div className="grid grid-cols-3 gap-3 my-5 py-4 px-4 bg-[#fafafa] rounded-2xl border border-[#e5e5e5] text-center">
-            <div>
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9e9e9e] block">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3 my-5 py-3 sm:py-4 px-2 sm:px-4 bg-[#fafafa] rounded-2xl border border-[#e5e5e5] text-center">
+            <div className="min-w-0 px-0.5">
+              <span className="text-[9px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#9e9e9e] block">
                 Duration
               </span>
-              <span className="text-base font-bold text-[#222222] mt-0.5 block">
+              <span className="text-sm sm:text-base font-bold text-[#222222] mt-0.5 block">
                 {asm.durationMinutes} min
               </span>
             </div>
-            <div>
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9e9e9e] block">
+            <div className="min-w-0 px-0.5">
+              <span className="text-[9px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#9e9e9e] block">
                 Questions
               </span>
-              <span className="text-base font-bold text-[#222222] mt-0.5 block">
+              <span className="text-sm sm:text-base font-bold text-[#222222] mt-0.5 block">
                 {asm.questions.length}
               </span>
             </div>
-            <div>
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9e9e9e] block">
-                Total Points
+            <div className="min-w-0 px-0.5">
+              <span className="text-[9px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#9e9e9e] block">
+                Points
               </span>
-              <span className="text-base font-bold text-[#222222] mt-0.5 block">
+              <span className="text-sm sm:text-base font-bold text-[#222222] mt-0.5 block">
                 {totalPoints} pts
               </span>
             </div>
@@ -247,7 +247,7 @@ export const CourseDetailView: React.FC<CourseDetailViewProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             {isPublished ? (
               <button
                 type="button"
@@ -297,32 +297,32 @@ export const CourseDetailView: React.FC<CourseDetailViewProps> = ({
       </div>
 
       {/* Header Profile */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#e5e5e5] flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-3.5 py-1 text-xs font-bold rounded-full bg-[#fef3e2] text-[#f8af43] border border-[#f8af43]/30">
+      <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-[#e5e5e5] flex flex-col gap-4 sm:gap-6">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <span className="px-3 py-1 text-xs font-bold rounded-full bg-[#fef3e2] text-[#f8af43] border border-[#f8af43]/30">
               {categoryName}
             </span>
             {course.isArchived && (
-              <span className="px-3.5 py-1 text-xs font-semibold rounded-full bg-[#fafafa] text-[#616161] border border-[#e5e5e5]">
+              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-[#fafafa] text-[#616161] border border-[#e5e5e5]">
                 Archived Course
               </span>
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#222222] tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#222222] tracking-tight break-words">
             {course.name}
           </h1>
 
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-[#616161]">
-            <div className="flex items-center gap-1.5">
-              <User className="w-4 h-4 text-[#9e9e9e]" />
-              <span>
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-[#616161]">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <User className="w-4 h-4 text-[#9e9e9e] shrink-0" />
+              <span className="break-words">
                 Instructor: <strong className="text-[#222222]">{course.instructorName}</strong>
               </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-[#9e9e9e]" />
+              <Calendar className="w-4 h-4 text-[#9e9e9e] shrink-0" />
               <span>
                 {course.startDate} — {course.endDate}
               </span>
@@ -330,38 +330,40 @@ export const CourseDetailView: React.FC<CourseDetailViewProps> = ({
           </div>
         </div>
 
-        {/* View Tabs */}
-        <div className="flex items-center gap-1.5 bg-[#fafafa] p-1.5 rounded-full border border-[#e5e5e5] self-start md:self-auto shrink-0">
-          <button
-            onClick={() => setActiveTab('assessments')}
-            className={`px-5 py-2 rounded-full text-xs font-bold transition-all ${
-              activeTab === 'assessments'
-                ? 'bg-[#004e9e] text-white shadow-xs'
-                : 'text-[#616161] hover:text-[#222222]'
-            }`}
-          >
-            Assessments
-          </button>
-          <button
-            onClick={() => setActiveTab('results')}
-            className={`px-5 py-2 rounded-full text-xs font-bold transition-all ${
-              activeTab === 'results'
-                ? 'bg-[#004e9e] text-white shadow-xs'
-                : 'text-[#616161] hover:text-[#222222]'
-            }`}
-          >
-            Results ({resultsRows.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`px-5 py-2 rounded-full text-xs font-bold transition-all ${
-              activeTab === 'analytics'
-                ? 'bg-[#004e9e] text-white shadow-xs'
-                : 'text-[#616161] hover:text-[#222222]'
-            }`}
-          >
-            Analytics
-          </button>
+        {/* View Tabs — scrollable on narrow screens */}
+        <div className="w-full overflow-x-auto -mx-1 px-1">
+          <div className="inline-flex min-w-0 w-full sm:w-auto items-center gap-1 sm:gap-1.5 bg-[#fafafa] p-1 sm:p-1.5 rounded-full border border-[#e5e5e5]">
+            <button
+              onClick={() => setActiveTab('assessments')}
+              className={`flex-1 sm:flex-none px-3 sm:px-5 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap ${
+                activeTab === 'assessments'
+                  ? 'bg-[#004e9e] text-white shadow-xs'
+                  : 'text-[#616161] hover:text-[#222222]'
+              }`}
+            >
+              Assessments
+            </button>
+            <button
+              onClick={() => setActiveTab('results')}
+              className={`flex-1 sm:flex-none px-3 sm:px-5 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap ${
+                activeTab === 'results'
+                  ? 'bg-[#004e9e] text-white shadow-xs'
+                  : 'text-[#616161] hover:text-[#222222]'
+              }`}
+            >
+              Results ({resultsRows.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex-1 sm:flex-none px-3 sm:px-5 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap ${
+                activeTab === 'analytics'
+                  ? 'bg-[#004e9e] text-white shadow-xs'
+                  : 'text-[#616161] hover:text-[#222222]'
+              }`}
+            >
+              Analytics
+            </button>
+          </div>
         </div>
       </div>
 
@@ -452,170 +454,255 @@ export const CourseDetailView: React.FC<CourseDetailViewProps> = ({
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-[#e5e5e5] bg-[#fafafa] text-[11px] uppercase tracking-wider text-[#616161] font-bold">
-                    <th className="py-3.5 px-6">Name</th>
-                    <th className="py-3.5 px-4">National ID</th>
-                    <th className="py-3.5 px-4">Contact</th>
-                    <th className="py-3.5 px-3 text-center">Pre Score</th>
-                    <th className="py-3.5 px-3 text-center">Post Score</th>
-                    <th className="py-3.5 px-3 text-center">Improvement</th>
-                    <th className="py-3.5 px-3 text-center">Pre Status</th>
-                    <th className="py-3.5 px-3 text-center">Post Status</th>
-                    <th className="py-3.5 px-3 text-center">Result Status</th>
-                    <th className="py-3.5 px-6 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#e5e5e5]">
-                  {resultsRows.map((row) => {
-                    const preAttempt = row.preAttempt;
-                    const postAttempt = row.postAttempt;
+            <>
+              {/* Mobile stacked result cards */}
+              <div className="lg:hidden p-3 sm:p-4 space-y-3">
+                {resultsRows.map((row) => {
+                  const preAttempt = row.preAttempt;
+                  const postAttempt = row.postAttempt;
+                  const preScoreDisplay =
+                    row.preScore !== undefined && row.preMaxScore
+                      ? `${row.preScore}/${row.preMaxScore}`
+                      : '—';
+                  const postScoreDisplay =
+                    row.postScore !== undefined && row.postMaxScore
+                      ? `${row.postScore}/${row.postMaxScore}`
+                      : '—';
+                  const hasImprovement =
+                    row.improvementPercentage !== null && row.improvementPercentage !== undefined;
 
-                    const preScoreDisplay =
-                      row.preScore !== undefined && row.preMaxScore
-                        ? `${row.preScore}/${row.preMaxScore}`
-                        : '—';
-
-                    const postScoreDisplay =
-                      row.postScore !== undefined && row.postMaxScore
-                        ? `${row.postScore}/${row.postMaxScore}`
-                        : '—';
-
-                    const hasImprovement = row.improvementPercentage !== null && row.improvementPercentage !== undefined;
-
-                    return (
-                      <tr key={row.student.id} className="hover:bg-[#fafafa] transition-colors">
-                        <td className="py-3.5 px-6 font-bold text-[#222222]">
+                  return (
+                    <div
+                      key={row.student.id}
+                      className="rounded-2xl border border-[#e5e5e5] bg-[#fafafa] p-4 space-y-3"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-bold text-sm text-[#222222] break-words">
                           {row.student.fullName}
-                        </td>
-                        <td className="py-3.5 px-4 font-mono text-[#616161]">
+                        </div>
+                        <div className="text-[11px] text-[#616161] font-mono mt-0.5 break-all">
                           {row.student.nationalId}
-                        </td>
-                        <td className="py-3.5 px-4 text-[#616161]">
-                          <div>{row.student.phone}</div>
-                          <div className="text-[10px] text-[#9e9e9e]">{row.student.email}</div>
-                        </td>
+                        </div>
+                        <div className="text-[11px] text-[#9e9e9e] mt-0.5 break-all">
+                          {row.student.phone} · {row.student.email}
+                        </div>
+                      </div>
 
-                        {/* Pre Score */}
-                        <td className="py-3.5 px-3 text-center font-bold text-[#222222]">
-                          {preScoreDisplay}
-                        </td>
-
-                        {/* Post Score */}
-                        <td className="py-3.5 px-3 text-center font-bold text-[#222222]">
-                          {postScoreDisplay}
-                        </td>
-
-                        {/* Improvement (Post% - Pre%) or N/A if missing Pre */}
-                        <td className="py-3.5 px-3 text-center font-bold">
-                          {hasImprovement ? (
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                                row.improvementPercentage! > 0
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : row.improvementPercentage! === 0
-                                  ? 'bg-[#fafafa] text-[#616161] border border-[#e5e5e5]'
-                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
-                              }`}
-                            >
-                              {row.improvementPercentage! > 0 ? '+' : ''}
-                              {row.improvementPercentage}%
-                            </span>
-                          ) : (
-                            <span className="text-[#9e9e9e] font-normal">N/A</span>
-                          )}
-                        </td>
-
-                        {/* Pre Status */}
-                        <td className="py-3.5 px-3 text-center">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                              row.preStatus === 'Completed'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : row.preStatus === 'In Progress'
-                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-[#fafafa] text-[#616161] border border-[#e5e5e5]'
-                            }`}
-                          >
-                            {row.preStatus}
-                          </span>
-                        </td>
-
-                        {/* Post Status */}
-                        <td className="py-3.5 px-3 text-center">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                              row.postStatus === 'Completed'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : row.postStatus === 'In Progress'
-                                ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                : 'bg-[#fafafa] text-[#616161] border border-[#e5e5e5]'
-                            }`}
-                          >
-                            {row.postStatus}
-                          </span>
-                        </td>
-
-                        {/* Result Status */}
-                        <td className="py-3.5 px-3 text-center">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                              row.resultStatus === 'PUBLISHED'
-                                ? 'bg-[#e6eff8] text-[#004e9e] border border-[#004e9e]/20'
-                                : row.resultStatus === 'REVIEWED'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : 'bg-amber-50 text-amber-700 border border-amber-200'
-                            }`}
-                          >
-                            {row.resultStatus.replace('_', ' ')}
-                          </span>
-                        </td>
-
-                        {/* Actions */}
-                        <td className="py-3.5 px-6 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            {postAttempt && (
-                              <button
-                                type="button"
-                                onClick={() => onSelectAttemptDetails(postAttempt.id)}
-                                title="View Post-Test Attempt Details"
-                                className="px-3 py-1 bg-[#fafafa] hover:bg-[#e6eff8] hover:text-[#004e9e] text-[#222222] border border-[#e5e5e5] rounded-full text-[11px] font-bold transition-colors"
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="rounded-xl bg-white border border-[#e5e5e5] p-2">
+                          <div className="text-[9px] uppercase font-bold text-[#9e9e9e]">Pre</div>
+                          <div className="text-xs font-bold text-[#222222] mt-0.5">{preScoreDisplay}</div>
+                          <div className="text-[10px] text-[#616161] mt-0.5">{row.preStatus}</div>
+                        </div>
+                        <div className="rounded-xl bg-white border border-[#e5e5e5] p-2">
+                          <div className="text-[9px] uppercase font-bold text-[#9e9e9e]">Post</div>
+                          <div className="text-xs font-bold text-[#222222] mt-0.5">{postScoreDisplay}</div>
+                          <div className="text-[10px] text-[#616161] mt-0.5">{row.postStatus}</div>
+                        </div>
+                        <div className="rounded-xl bg-white border border-[#e5e5e5] p-2">
+                          <div className="text-[9px] uppercase font-bold text-[#9e9e9e]">Delta</div>
+                          <div className="text-xs font-bold mt-0.5">
+                            {hasImprovement ? (
+                              <span
+                                className={
+                                  row.improvementPercentage! > 0
+                                    ? 'text-emerald-700'
+                                    : row.improvementPercentage! === 0
+                                    ? 'text-[#616161]'
+                                    : 'text-rose-700'
+                                }
                               >
-                                Post Drilldown
-                              </button>
-                            )}
-
-                            {preAttempt && (
-                              <button
-                                type="button"
-                                onClick={() => onSelectAttemptDetails(preAttempt.id)}
-                                title="View Pre-Test Attempt Details"
-                                className="px-3 py-1 bg-[#fafafa] hover:bg-[#e6eff8] hover:text-[#004e9e] text-[#222222] border border-[#e5e5e5] rounded-full text-[11px] font-bold transition-colors"
-                              >
-                                Pre Drilldown
-                              </button>
-                            )}
-
-                            {(postAttempt || preAttempt) && (
-                              <button
-                                type="button"
-                                onClick={() => setAttemptToReset(postAttempt || preAttempt!)}
-                                title="Reset Attempt (creates new attempt, preserves history)"
-                                className="p-1.5 text-[#9e9e9e] hover:text-amber-700 hover:bg-amber-50 rounded-full transition-colors"
-                              >
-                                <RotateCcw className="w-3.5 h-3.5" />
-                              </button>
+                                {row.improvementPercentage! > 0 ? '+' : ''}
+                                {row.improvementPercentage}%
+                              </span>
+                            ) : (
+                              <span className="text-[#9e9e9e]">N/A</span>
                             )}
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          <div className="text-[10px] text-[#616161] mt-0.5">
+                            {row.resultStatus.replace('_', ' ')}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        {postAttempt && (
+                          <button
+                            type="button"
+                            onClick={() => onSelectAttemptDetails(postAttempt.id)}
+                            className="flex-1 min-w-[7rem] px-3 py-1.5 bg-white hover:bg-[#e6eff8] hover:text-[#004e9e] text-[#222222] border border-[#e5e5e5] rounded-full text-[11px] font-bold transition-colors"
+                          >
+                            Post Drilldown
+                          </button>
+                        )}
+                        {preAttempt && (
+                          <button
+                            type="button"
+                            onClick={() => onSelectAttemptDetails(preAttempt.id)}
+                            className="flex-1 min-w-[7rem] px-3 py-1.5 bg-white hover:bg-[#e6eff8] hover:text-[#004e9e] text-[#222222] border border-[#e5e5e5] rounded-full text-[11px] font-bold transition-colors"
+                          >
+                            Pre Drilldown
+                          </button>
+                        )}
+                        {(postAttempt || preAttempt) && (
+                          <button
+                            type="button"
+                            onClick={() => setAttemptToReset(postAttempt || preAttempt!)}
+                            title="Reset Attempt"
+                            className="p-1.5 text-[#9e9e9e] hover:text-amber-700 hover:bg-amber-50 rounded-full transition-colors"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop table — horizontal scroll stays inside container */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full min-w-[960px] text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#e5e5e5] bg-[#fafafa] text-[11px] uppercase tracking-wider text-[#616161] font-bold">
+                      <th className="py-3.5 px-6">Name</th>
+                      <th className="py-3.5 px-4">National ID</th>
+                      <th className="py-3.5 px-4">Contact</th>
+                      <th className="py-3.5 px-3 text-center">Pre Score</th>
+                      <th className="py-3.5 px-3 text-center">Post Score</th>
+                      <th className="py-3.5 px-3 text-center">Improvement</th>
+                      <th className="py-3.5 px-3 text-center">Pre Status</th>
+                      <th className="py-3.5 px-3 text-center">Post Status</th>
+                      <th className="py-3.5 px-3 text-center">Result Status</th>
+                      <th className="py-3.5 px-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e5e5e5]">
+                    {resultsRows.map((row) => {
+                      const preAttempt = row.preAttempt;
+                      const postAttempt = row.postAttempt;
+
+                      const preScoreDisplay =
+                        row.preScore !== undefined && row.preMaxScore
+                          ? `${row.preScore}/${row.preMaxScore}`
+                          : '—';
+
+                      const postScoreDisplay =
+                        row.postScore !== undefined && row.postMaxScore
+                          ? `${row.postScore}/${row.postMaxScore}`
+                          : '—';
+
+                      const hasImprovement =
+                        row.improvementPercentage !== null && row.improvementPercentage !== undefined;
+
+                      return (
+                        <tr key={row.student.id} className="hover:bg-[#fafafa] transition-colors">
+                          <td className="py-3.5 px-6 font-bold text-[#222222]">{row.student.fullName}</td>
+                          <td className="py-3.5 px-4 font-mono text-[#616161]">{row.student.nationalId}</td>
+                          <td className="py-3.5 px-4 text-[#616161]">
+                            <div>{row.student.phone}</div>
+                            <div className="text-[10px] text-[#9e9e9e]">{row.student.email}</div>
+                          </td>
+                          <td className="py-3.5 px-3 text-center font-bold text-[#222222]">{preScoreDisplay}</td>
+                          <td className="py-3.5 px-3 text-center font-bold text-[#222222]">{postScoreDisplay}</td>
+                          <td className="py-3.5 px-3 text-center font-bold">
+                            {hasImprovement ? (
+                              <span
+                                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                                  row.improvementPercentage! > 0
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : row.improvementPercentage! === 0
+                                    ? 'bg-[#fafafa] text-[#616161] border border-[#e5e5e5]'
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                }`}
+                              >
+                                {row.improvementPercentage! > 0 ? '+' : ''}
+                                {row.improvementPercentage}%
+                              </span>
+                            ) : (
+                              <span className="text-[#9e9e9e] font-normal">N/A</span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-3 text-center">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                                row.preStatus === 'Completed'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : row.preStatus === 'In Progress'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  : 'bg-[#fafafa] text-[#616161] border border-[#e5e5e5]'
+                              }`}
+                            >
+                              {row.preStatus}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-3 text-center">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                                row.postStatus === 'Completed'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : row.postStatus === 'In Progress'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  : 'bg-[#fafafa] text-[#616161] border border-[#e5e5e5]'
+                              }`}
+                            >
+                              {row.postStatus}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-3 text-center">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                                row.resultStatus === 'PUBLISHED'
+                                  ? 'bg-[#e6eff8] text-[#004e9e] border border-[#004e9e]/20'
+                                  : row.resultStatus === 'REVIEWED'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}
+                            >
+                              {row.resultStatus.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-6 text-right">
+                            <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                              {postAttempt && (
+                                <button
+                                  type="button"
+                                  onClick={() => onSelectAttemptDetails(postAttempt.id)}
+                                  title="View Post-Test Attempt Details"
+                                  className="px-3 py-1 bg-[#fafafa] hover:bg-[#e6eff8] hover:text-[#004e9e] text-[#222222] border border-[#e5e5e5] rounded-full text-[11px] font-bold transition-colors"
+                                >
+                                  Post Drilldown
+                                </button>
+                              )}
+                              {preAttempt && (
+                                <button
+                                  type="button"
+                                  onClick={() => onSelectAttemptDetails(preAttempt.id)}
+                                  title="View Pre-Test Attempt Details"
+                                  className="px-3 py-1 bg-[#fafafa] hover:bg-[#e6eff8] hover:text-[#004e9e] text-[#222222] border border-[#e5e5e5] rounded-full text-[11px] font-bold transition-colors"
+                                >
+                                  Pre Drilldown
+                                </button>
+                              )}
+                              {(postAttempt || preAttempt) && (
+                                <button
+                                  type="button"
+                                  onClick={() => setAttemptToReset(postAttempt || preAttempt!)}
+                                  title="Reset Attempt (creates new attempt, preserves history)"
+                                  className="p-1.5 text-[#9e9e9e] hover:text-amber-700 hover:bg-amber-50 rounded-full transition-colors"
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -624,12 +711,12 @@ export const CourseDetailView: React.FC<CourseDetailViewProps> = ({
       {activeTab === 'analytics' && analytics && (
         <div className="space-y-6">
           {/* Top Key Metrics */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-3xl border border-[#e5e5e5] hover:border-[#004e9e]/30 transition-all">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-[#e5e5e5] hover:border-[#004e9e]/30 transition-all min-w-0">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-[#9e9e9e] block">
                 Avg Pre Score
               </span>
-              <span className="text-2xl font-extrabold text-[#222222] mt-1 block">
+              <span className="text-xl sm:text-2xl font-extrabold text-[#222222] mt-1 block">
                 {analytics.avgPreScore !== null ? `${analytics.avgPreScore}%` : 'N/A'}
               </span>
               <span className="text-[11px] text-[#616161] mt-1 block">

@@ -23,7 +23,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
     : new Date();
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-between py-10 px-4 sm:px-6 text-[#222222]">
+    <div className="min-h-dvh bg-[#fafafa] flex flex-col justify-between py-6 sm:py-10 px-3 sm:px-6 text-[#222222] overflow-x-clip">
       {/* Top Branding */}
       <div className="max-w-md w-full mx-auto flex items-center justify-center gap-2.5">
         <img
@@ -42,7 +42,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
       </div>
 
       {/* Main Confirmation Card */}
-      <div className="max-w-md w-full mx-auto my-8 bg-white rounded-3xl border border-[#e5e5e5] shadow-sm p-8 sm:p-10 text-center animate-in zoom-in-95 duration-200">
+      <div className="max-w-md w-full mx-auto my-6 sm:my-8 bg-white rounded-3xl border border-[#e5e5e5] shadow-sm p-5 sm:p-10 text-center animate-in zoom-in-95 duration-200">
         {/* Large Green Checkmark */}
         <div className="w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 className="w-10 h-10" />
@@ -57,29 +57,29 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
         </p>
 
         {/* Course & Submission Meta */}
-        <div className="mt-6 p-4 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] text-left text-xs space-y-2">
-          <div className="flex items-center justify-between text-[#616161]">
-            <span>Course:</span>
-            <span className="font-bold text-[#222222] text-right truncate max-w-[180px]">
+        <div className="mt-6 p-4 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] text-left text-xs space-y-2.5">
+          <div className="flex items-start justify-between gap-3 text-[#616161]">
+            <span className="shrink-0">Course:</span>
+            <span className="font-bold text-[#222222] text-right break-words min-w-0">
               {course.name}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-[#616161]">
-            <span>Instructor:</span>
-            <span className="font-semibold text-[#222222]">{course.instructorName}</span>
+          <div className="flex items-start justify-between gap-3 text-[#616161]">
+            <span className="shrink-0">Instructor:</span>
+            <span className="font-semibold text-[#222222] text-right break-words min-w-0">{course.instructorName}</span>
           </div>
 
-          <div className="flex items-center justify-between text-[#616161]">
-            <span>Submitted At:</span>
-            <span className="font-semibold text-[#222222]">
+          <div className="flex items-start justify-between gap-3 text-[#616161]">
+            <span className="shrink-0">Submitted At:</span>
+            <span className="font-semibold text-[#222222] text-right">
               {submissionDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} •{' '}
               {submissionDate.toLocaleDateString()}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-[#616161]">
-            <span>Attempt Reference:</span>
+          <div className="flex items-center justify-between gap-3 text-[#616161]">
+            <span className="shrink-0">Attempt Reference:</span>
             <span className="font-mono text-[#004e9e] font-bold">#{attempt.id.slice(-6)}</span>
           </div>
         </div>

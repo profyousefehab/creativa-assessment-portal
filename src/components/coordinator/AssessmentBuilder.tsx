@@ -198,16 +198,16 @@ export const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
   return (
     <div id="assessment-builder-view" className="space-y-6 animate-in fade-in duration-150">
       {/* Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-[#e5e5e5]">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#e5e5e5]">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
           <button
             onClick={onBack}
-            className="p-2 text-[#616161] hover:text-[#004e9e] rounded-full hover:bg-[#e6eff8] transition-colors"
+            className="p-2 text-[#616161] hover:text-[#004e9e] rounded-full hover:bg-[#e6eff8] transition-colors shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <span
                 className={`px-3 py-0.5 text-xs font-bold uppercase tracking-wider rounded-full ${
                   isPreTest
@@ -219,17 +219,17 @@ export const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
               </span>
               <span className="text-xs text-[#9e9e9e] font-mono">v{assessment.currentVersion}</span>
             </div>
-            <h1 className="text-xl font-extrabold text-[#222222] tracking-tight mt-0.5">
+            <h1 className="text-lg sm:text-xl font-extrabold text-[#222222] tracking-tight mt-0.5 break-words">
               {courseName}
             </h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => onPreview(assessment.id)}
-            className="btn-pill-secondary py-2 px-4 text-xs font-bold"
+            className="btn-pill-secondary py-2 px-4 text-xs font-bold w-full sm:w-auto"
           >
             <Eye className="w-4 h-4 text-[#616161]" />
             <span>Preview</span>
@@ -238,7 +238,7 @@ export const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
           <button
             type="button"
             onClick={handleSaveDraft}
-            className="btn-pill-secondary py-2 px-4 text-xs font-bold"
+            className="btn-pill-secondary py-2 px-4 text-xs font-bold w-full sm:w-auto"
           >
             <Save className="w-4 h-4 text-[#616161]" />
             <span>Save Draft</span>
@@ -247,7 +247,7 @@ export const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
           <button
             type="button"
             onClick={handleSaveAndPublish}
-            className="btn-pill-primary py-2 px-5 text-xs font-bold"
+            className="btn-pill-primary py-2 px-5 text-xs font-bold w-full sm:w-auto"
           >
             <Send className="w-4 h-4" />
             <span>Publish</span>
@@ -362,9 +362,9 @@ export const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
                 className="bg-white rounded-3xl border border-[#e5e5e5] p-6 space-y-4 hover:border-[#004e9e]/30 transition-all"
               >
                 {/* Question Header */}
-                <div className="flex items-center justify-between gap-4 pb-3 border-b border-[#e5e5e5]">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-full bg-[#004e9e] text-white font-bold text-xs flex items-center justify-center">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e5e5e5]">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 min-w-0">
+                    <span className="w-7 h-7 rounded-full bg-[#004e9e] text-white font-bold text-xs flex items-center justify-center shrink-0">
                       {qIndex + 1}
                     </span>
                     <span
@@ -385,7 +385,7 @@ export const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 shrink-0">
                     <div className="flex items-center gap-1.5 text-xs text-[#616161]">
                       <span className="font-semibold">Points:</span>
                       <input
@@ -396,7 +396,7 @@ export const AssessmentBuilder: React.FC<AssessmentBuilderProps> = ({
                         onChange={(e) =>
                           handleQuestionPointsChange(qIndex, parseInt(e.target.value) || 1)
                         }
-                        className="w-16 px-2 py-1 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-center font-bold text-xs"
+                        className="w-14 sm:w-16 px-2 py-1 bg-[#fafafa] border border-[#e5e5e5] rounded-full text-center font-bold text-xs"
                       />
                     </div>
 

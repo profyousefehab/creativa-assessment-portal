@@ -217,28 +217,28 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
       className="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden transition-all"
     >
       {/* Top Header & Interactive Filter Bar */}
-      <div className="p-3.5 sm:p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div className="px-3.5 py-2.5 sm:px-4 sm:py-2.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-[#004e9e] shrink-0">
-            <BarChart3 className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-md bg-blue-50 border border-blue-100 flex items-center justify-center text-[#004e9e] shrink-0">
+            <BarChart3 className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
               Completion Rate vs. Average Score
             </h2>
-            <p className="text-[11px] text-slate-500 mt-0.5">
+            <p className="text-[10.5px] text-slate-500 mt-0.5">
               Cohort assessment performance benchmark across active courses
             </p>
           </div>
         </div>
 
         {/* Filter Tabs - Full Pills */}
-        <div className="inline-flex items-center bg-slate-100/80 p-0.5 rounded-full border border-slate-200/60 text-[11px] font-semibold self-start sm:self-auto">
+        <div className="inline-flex items-center bg-slate-100/80 p-0.5 rounded-full border border-slate-200/60 text-[10.5px] font-semibold self-start sm:self-auto">
           <button
             type="button"
             id="chart-filter-all"
             onClick={() => setFilter('ALL')}
-            className={`py-1 px-2.5 rounded-full transition-all cursor-pointer ${
+            className={`py-0.5 px-2.5 rounded-full transition-all cursor-pointer ${
               filter === 'ALL'
                 ? 'bg-[#004e9e] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -250,7 +250,7 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
             type="button"
             id="chart-filter-pre"
             onClick={() => setFilter('PRE_TEST')}
-            className={`py-1 px-2.5 rounded-full transition-all cursor-pointer ${
+            className={`py-0.5 px-2.5 rounded-full transition-all cursor-pointer ${
               filter === 'PRE_TEST'
                 ? 'bg-[#004e9e] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -262,7 +262,7 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
             type="button"
             id="chart-filter-post"
             onClick={() => setFilter('POST_TEST')}
-            className={`py-1 px-2.5 rounded-full transition-all cursor-pointer ${
+            className={`py-0.5 px-2.5 rounded-full transition-all cursor-pointer ${
               filter === 'POST_TEST'
                 ? 'bg-[#004e9e] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -274,7 +274,7 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
             type="button"
             id="chart-filter-active"
             onClick={() => setFilter('ACTIVE_ONLY')}
-            className={`py-1 px-2.5 rounded-full transition-all cursor-pointer ${
+            className={`py-0.5 px-2.5 rounded-full transition-all cursor-pointer ${
               filter === 'ACTIVE_ONLY'
                 ? 'bg-[#004e9e] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -286,25 +286,25 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
       </div>
 
       {/* Chart Canvas Area */}
-      <div className="p-3.5 sm:p-4">
+      <div className="p-2.5 sm:p-3">
         {filteredData.length === 0 ? (
-          <div className="py-8 text-center text-slate-500">
-            <BarChart3 className="w-8 h-8 text-slate-300 mx-auto mb-1.5" />
+          <div className="py-4 sm:py-5 text-center text-slate-500">
+            <BarChart3 className="w-6 h-6 text-slate-300 mx-auto mb-1" />
             <p className="text-xs font-semibold text-slate-800">
               No assessments match the selected filter.
             </p>
-            <p className="text-[11px] text-slate-400 mt-0.5">
+            <p className="text-[10.5px] text-slate-400 mt-0.5">
               Select &quot;All Active&quot; to review all configured course assessments.
             </p>
           </div>
         ) : (
           <div>
-            <div className="h-60 w-full">
+            <div className="h-44 sm:h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={filteredData}
-                  margin={{ top: 10, right: 12, left: -15, bottom: 25 }}
-                  barGap={5}
+                  margin={{ top: 6, right: 10, left: -18, bottom: 16 }}
+                  barGap={4}
                   onClick={(event: any) => {
                     if (event && event.activePayload && event.activePayload[0]) {
                       const payload = event.activePayload[0].payload as AssessmentChartItem;
@@ -319,17 +319,17 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
                   <XAxis
                     dataKey="shortLabel"
                     stroke="#94a3b8"
-                    fontSize={10}
+                    fontSize={9.5}
                     tickLine={false}
                     axisLine={{ stroke: '#e2e8f0' }}
                     interval={0}
-                    angle={-18}
+                    angle={-14}
                     textAnchor="end"
-                    height={45}
+                    height={32}
                   />
                   <YAxis
                     stroke="#94a3b8"
-                    fontSize={10}
+                    fontSize={9.5}
                     tickLine={false}
                     axisLine={{ stroke: '#e2e8f0' }}
                     domain={[0, 100]}
@@ -345,44 +345,44 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
                       value: '50% Threshold',
                       position: 'insideBottomRight',
                       fill: '#94a3b8',
-                      fontSize: 9,
+                      fontSize: 8.5,
                     }}
                   />
                   <Legend
                     verticalAlign="top"
                     align="right"
                     iconType="circle"
-                    iconSize={7}
-                    wrapperStyle={{ paddingBottom: '8px', fontSize: '11px' }}
+                    iconSize={6.5}
+                    wrapperStyle={{ paddingBottom: '4px', fontSize: '10.5px' }}
                   />
                   <Bar
                     dataKey="completionRate"
                     name="Completion Rate (%)"
                     fill="#004e9e"
-                    radius={[4, 4, 0, 0]}
-                    maxBarSize={28}
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={24}
                   />
                   <Bar
                     dataKey="averageScore"
                     name="Average Score (%)"
                     fill="#f8af43"
-                    radius={[4, 4, 0, 0]}
-                    maxBarSize={28}
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={24}
                   />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             {/* Bottom Key Insights Banner */}
-            <div className="mt-2.5 pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2.5 py-0.5 rounded-full text-slate-600 font-medium text-[10.5px]">
+            <div className="mt-2 pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-1.5 text-[10px] sm:text-[10.5px] text-slate-500">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded-full text-slate-600 font-medium text-[10px]">
                   <span>Overall Avg: <strong className="text-slate-900">{stats.overallAvgScore}% score</strong></span>
                   <span className="text-slate-300">•</span>
                   <span><strong className="text-slate-900">{stats.overallAvgCompletion}% completion</strong></span>
                 </div>
                 {stats.topCompletionItem && (
-                  <div className="flex items-center gap-1 bg-[#e6eff8] border border-[#004e9e]/20 px-2.5 py-0.5 rounded-full text-[10.5px]">
+                  <div className="flex items-center gap-1 bg-[#e6eff8] border border-[#004e9e]/20 px-2 py-0.5 rounded-full text-[10px]">
                     <CheckCircle2 className="w-3 h-3 text-[#004e9e] shrink-0" />
                     <span className="text-[#222222]">
                       <strong className="text-[#004e9e]">Top Completion:</strong>{' '}
@@ -391,7 +391,7 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
                   </div>
                 )}
                 {stats.topScoreItem && (
-                  <div className="flex items-center gap-1 bg-[#fef3e2] border border-[#fde68a] px-2.5 py-0.5 rounded-full text-[10.5px]">
+                  <div className="flex items-center gap-1 bg-[#fef3e2] border border-[#fde68a] px-2 py-0.5 rounded-full text-[10px]">
                     <Sparkles className="w-3 h-3 text-[#f8af43] shrink-0" />
                     <span className="text-[#222222]">
                       <strong className="text-[#b45309]">Top Score:</strong>{' '}
@@ -401,7 +401,7 @@ export const AssessmentSummaryChart: React.FC<AssessmentSummaryChartProps> = ({
                 )}
               </div>
 
-              <span className="text-[10px] text-slate-400">
+              <span className="text-[9.5px] text-slate-400">
                 Click any bar to jump to course details
               </span>
             </div>

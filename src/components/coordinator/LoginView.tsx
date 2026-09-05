@@ -32,18 +32,18 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-between p-4 sm:p-6 text-[#222222]">
+    <div className="min-h-dvh bg-[#fafafa] flex flex-col justify-between p-4 sm:p-6 text-[#222222] overflow-x-clip">
       {/* Top Bar */}
-      <div className="max-w-6xl w-full mx-auto flex items-center justify-between py-2">
-        <div className="flex items-center gap-3">
+      <div className="max-w-6xl w-full mx-auto flex items-center justify-between gap-2 py-2 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <img
             src="/logo.png"
             alt="Creativa Logo"
-            className="h-10 w-auto object-contain shrink-0"
+            className="h-8 sm:h-10 w-auto object-contain shrink-0"
           />
-          <div>
-            <span className="font-extrabold text-base text-[#222222] tracking-tight">Creativa</span>
-            <span className="text-[11px] font-bold text-[#b45309] bg-[#fef3e2] border border-[#f8af43]/30 px-2 py-0.5 rounded-full ml-2">
+          <div className="min-w-0 hidden min-[360px]:block">
+            <span className="font-extrabold text-sm sm:text-base text-[#222222] tracking-tight">Creativa</span>
+            <span className="text-[10px] sm:text-[11px] font-bold text-[#b45309] bg-[#fef3e2] border border-[#f8af43]/30 px-2 py-0.5 rounded-full ml-1.5 sm:ml-2 whitespace-nowrap">
               Aswan Hub
             </span>
           </div>
@@ -52,24 +52,25 @@ export const LoginView: React.FC<LoginViewProps> = ({
         {/* Shortcut to Student Portal demo */}
         <button
           onClick={onOpenStudentPortal}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-[#e6eff8] hover:text-[#004e9e] text-xs font-bold text-[#222222] border border-[#e5e5e5] transition-all shadow-xs"
+          className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-full bg-white hover:bg-[#e6eff8] hover:text-[#004e9e] text-[11px] sm:text-xs font-bold text-[#222222] border border-[#e5e5e5] transition-all shadow-xs shrink-0"
         >
-          <QrCode className="w-3.5 h-3.5 text-[#004e9e]" />
-          <span>Student Portal Entry</span>
+          <QrCode className="w-3.5 h-3.5 text-[#004e9e] shrink-0" />
+          <span className="hidden sm:inline">Student Portal Entry</span>
+          <span className="sm:hidden">Student</span>
         </button>
       </div>
 
       {/* Center Auth Card */}
-      <div className="max-w-md w-full mx-auto my-12 bg-white rounded-3xl border border-[#e5e5e5] p-8 sm:p-10 text-[#222222]">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-white border border-[#e5e5e5] p-2 flex items-center justify-center mx-auto mb-4 shadow-xs">
+      <div className="max-w-md w-full mx-auto my-6 sm:my-12 bg-white rounded-2xl sm:rounded-3xl border border-[#e5e5e5] p-5 sm:p-10 text-[#222222]">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border border-[#e5e5e5] p-2 flex items-center justify-center mx-auto mb-4 shadow-xs">
             <img
               src="/logo.png"
               alt="Creativa Innovation Hub"
-              className="h-12 w-auto object-contain"
+              className="h-10 sm:h-12 w-auto object-contain"
             />
           </div>
-          <h1 className="text-2xl font-extrabold text-[#222222] tracking-tight">Coordinator Portal</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#222222] tracking-tight">Coordinator Portal</h1>
           <p className="text-xs text-[#616161] mt-1.5 leading-relaxed">
             Sign in to manage training cohorts, configure Pre/Post tests, and publish assessment results.
           </p>

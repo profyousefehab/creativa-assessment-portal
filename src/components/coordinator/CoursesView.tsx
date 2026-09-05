@@ -150,10 +150,10 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           <button
             onClick={() => setIsCategoryModalOpen(true)}
-            className="btn-pill-secondary text-sm"
+            className="btn-pill-secondary text-sm flex-1 sm:flex-none"
           >
             <FolderTree className="w-4 h-4 text-[#004e9e]" />
             <span>Categories</span>
@@ -162,7 +162,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
           <button
             onClick={() => setIsCreateModalOpen(true)}
             id="btn-create-course-header"
-            className="btn-pill-primary text-sm shadow-xs"
+            className="btn-pill-primary text-sm shadow-xs flex-1 sm:flex-none"
           >
             <Plus className="w-4 h-4" />
             <span>Create Course</span>
@@ -302,18 +302,18 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
 
       {/* Create Course Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#222222]/40 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl max-w-lg w-full p-6 text-[#222222] animate-in zoom-in-95">
-            <div className="flex items-center justify-between pb-4 border-b border-[#e5e5e5]">
-              <div>
-                <h3 className="text-lg font-bold text-[#222222] tracking-tight">Create New Course</h3>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#222222]/40 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl w-full max-w-lg max-h-[min(92dvh,720px)] overflow-y-auto p-5 sm:p-6 text-[#222222] animate-in zoom-in-95">
+            <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#e5e5e5]">
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-[#222222] tracking-tight">Create New Course</h3>
                 <p className="text-xs text-[#616161]">
                   Course fields are strictly limited to official metadata.
                 </p>
               </div>
               <button
                 onClick={() => setIsCreateModalOpen(false)}
-                className="p-1.5 text-[#9e9e9e] hover:text-[#222222] rounded-full hover:bg-[#fafafa]"
+                className="p-1.5 text-[#9e9e9e] hover:text-[#222222] rounded-full hover:bg-[#fafafa] shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -366,7 +366,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#616161] uppercase tracking-wider mb-1.5">
                     Start Date *
@@ -393,17 +393,17 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#e5e5e5] flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-[#e5e5e5] flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="btn-pill-secondary text-sm"
+                  className="btn-pill-secondary text-sm w-full sm:w-auto"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-pill-primary text-sm shadow-xs"
+                  className="btn-pill-primary text-sm shadow-xs w-full sm:w-auto"
                 >
                   Create Course
                 </button>
@@ -415,14 +415,14 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
 
       {/* Dynamic Categories Modal */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#222222]/40 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl max-w-md w-full p-6 text-[#222222] animate-in zoom-in-95">
-            <div className="flex items-center justify-between pb-4 border-b border-[#e5e5e5]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center font-bold">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#222222]/40 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl w-full max-w-md max-h-[min(92dvh,640px)] overflow-y-auto p-5 sm:p-6 text-[#222222] animate-in zoom-in-95">
+            <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#e5e5e5]">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center font-bold shrink-0">
                   <FolderTree className="w-4 h-4" />
                 </div>
-                <h3 className="text-lg font-bold text-[#222222] tracking-tight">Manage Categories</h3>
+                <h3 className="text-base sm:text-lg font-bold text-[#222222] tracking-tight">Manage Categories</h3>
               </div>
               <button
                 onClick={() => setIsCategoryModalOpen(false)}

@@ -178,32 +178,32 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
   const isArabicQuestion = currentQuestion ? containsArabic(currentQuestion.text) : false;
 
   return (
-    <div id="student-test-runner" className="min-h-screen bg-[#fafafa] flex flex-col justify-between text-[#222222]">
+    <div id="student-test-runner" className="min-h-dvh bg-[#fafafa] flex flex-col justify-between text-[#222222] overflow-x-clip">
       {/* Sticky Top Header */}
       <header className="sticky top-0 z-30 bg-[#004e9e] text-white shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 truncate pr-2">
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center p-1 shrink-0 shadow-xs">
+        <div className="max-w-3xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 pr-1">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center p-1 shrink-0 shadow-xs">
               <img
                 src="/logo.png"
                 alt="Creativa Logo"
                 className="h-full w-auto object-contain"
               />
             </div>
-            <div className="truncate">
-              <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                 <span
-                  className={`px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full ${
+                  className={`px-2 sm:px-3 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider rounded-full shrink-0 ${
                     assessment.type === 'PRE_TEST' ? 'bg-[#e6eff8] text-[#004e9e]' : 'bg-[#fef3e2] text-[#b45309]'
                   }`}
                 >
-                  {assessment.type === 'PRE_TEST' ? 'Pre-Test' : 'Post-Test'}
+                  {assessment.type === 'PRE_TEST' ? 'Pre' : 'Post'}
                 </span>
-                <span className="text-xs text-white truncate font-bold">
+                <span className="text-xs text-white truncate font-bold min-w-0">
                   {course.name}
                 </span>
               </div>
-              <span className="text-[11px] text-white/80 block truncate mt-0.5">
+              <span className="text-[10px] sm:text-[11px] text-white/80 block truncate mt-0.5">
                 Creativa Innovation Hub Aswan
               </span>
             </div>
@@ -212,7 +212,7 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
           {/* Sticky Countdown Timer */}
           <div
             id="countdown-timer"
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-mono font-bold text-sm tracking-wide transition-all shadow-xs ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 rounded-full font-mono font-bold text-xs sm:text-sm tracking-wide transition-all shadow-xs shrink-0 ${
               isUrgent
                 ? 'bg-rose-600 text-white animate-pulse'
                 : isWarning
@@ -220,7 +220,7 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
                 : 'bg-white/15 text-white border border-white/20 backdrop-blur-xs'
             }`}
           >
-            <Clock className="w-4 h-4" />
+            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>{formattedTime}</span>
           </div>
         </div>
@@ -244,20 +244,20 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
         {currentQuestion && (
           <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-xs p-5 sm:p-8 space-y-6">
             {/* Question Progress & Points */}
-            <div className="flex items-center justify-between text-xs pb-3 border-b border-[#e5e5e5]">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs pb-3 border-b border-[#e5e5e5]">
+              <div className="flex flex-wrap items-center gap-2 min-w-0">
                 <span className="font-extrabold text-[#222222] text-sm">
                   Question {currentIndex + 1} of {questions.length}
                 </span>
-                <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#fafafa] text-[#616161] border border-[#e5e5e5]">
+                <span className="px-2.5 sm:px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#fafafa] text-[#616161] border border-[#e5e5e5]">
                   {currentQuestion.type === 'SINGLE_CHOICE'
                     ? 'Single Choice'
                     : currentQuestion.type === 'MULTIPLE_CHOICE'
-                    ? 'Multiple Choice (Select all correct)'
+                    ? 'Multiple Choice'
                     : 'Essay Question'}
                 </span>
               </div>
-              <span className="font-bold text-[#004e9e]">{currentQuestion.points} Points</span>
+              <span className="font-bold text-[#004e9e] shrink-0">{currentQuestion.points} Points</span>
             </div>
 
             {/* Question Text with Auto Arabic RTL */}
@@ -396,22 +396,22 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
         )}
 
         {/* Bottom Action Controls */}
-        <div className="bg-white rounded-3xl border border-[#e5e5e5] p-4 shadow-sm flex items-center justify-between gap-3">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#e5e5e5] p-3 sm:p-4 shadow-sm flex items-center justify-between gap-2 sm:gap-3">
           <button
             type="button"
             disabled={currentIndex === 0}
             onClick={() => setCurrentIndex(currentIndex - 1)}
-            className="btn-pill-secondary py-2.5 px-5 text-xs font-bold disabled:opacity-30"
+            className="btn-pill-secondary py-2.5 px-3 sm:px-5 text-xs font-bold disabled:opacity-30 shrink-0"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span>Previous</span>
+            <span className="hidden sm:inline">Previous</span>
           </button>
 
           {currentIndex < questions.length - 1 ? (
             <button
               type="button"
               onClick={() => setCurrentIndex(currentIndex + 1)}
-              className="btn-pill-primary py-2.5 px-6 text-xs font-bold"
+              className="btn-pill-primary py-2.5 px-4 sm:px-6 text-xs font-bold shrink-0"
             >
               <span>Next</span>
               <ChevronRight className="w-4 h-4" />
@@ -420,10 +420,10 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
             <button
               type="button"
               onClick={() => setShowSubmitModal(true)}
-              className="flex items-center gap-1.5 px-6 py-2.5 rounded-full text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs"
+              className="flex items-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs shrink-0"
             >
               <Send className="w-4 h-4" />
-              <span>Submit Assessment</span>
+              <span>Submit</span>
             </button>
           )}
         </div>
@@ -431,14 +431,14 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
 
       {/* Submission Confirmation Modal (Section 33) */}
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl max-w-md w-full p-6 sm:p-8 text-[#222222] animate-in zoom-in-95 space-y-4">
-            <div className="flex items-center gap-3">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-[#e5e5e5] shadow-2xl w-full max-w-md max-h-[min(90dvh,640px)] overflow-y-auto p-5 sm:p-8 text-[#222222] animate-in zoom-in-95 space-y-4">
+            <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-[#e6eff8] text-[#004e9e] flex items-center justify-center shrink-0 font-bold">
                 <Send className="w-5 h-5" />
               </div>
-              <div>
-                <h3 className="text-lg font-extrabold text-[#222222] tracking-tight">Submit Assessment?</h3>
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-extrabold text-[#222222] tracking-tight">Submit Assessment?</h3>
                 <p className="text-xs text-[#616161]">Creativa Innovation Hub Aswan</p>
               </div>
             </div>
@@ -446,7 +446,7 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
             {unansweredCount > 0 ? (
               <div className="p-4 rounded-2xl bg-[#fef3e2] border border-[#f8af43]/30 text-[#b45309] text-xs space-y-1">
                 <div className="font-bold flex items-center gap-1.5 text-[#b45309]">
-                  <AlertTriangle className="w-4 h-4" />
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
                   <span>Unanswered Questions Detected</span>
                 </div>
                 <p>
@@ -459,11 +459,11 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
               </p>
             )}
 
-            <div className="pt-3 border-t border-[#e5e5e5] flex items-center justify-end gap-3">
+            <div className="pt-3 border-t border-[#e5e5e5] flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setShowSubmitModal(false)}
-                className="btn-pill-secondary py-2.5 px-5 text-xs font-bold"
+                className="btn-pill-secondary py-2.5 px-5 text-xs font-bold w-full sm:w-auto"
               >
                 Review Answers
               </button>
@@ -471,7 +471,7 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleConfirmSubmit}
-                className="btn-pill-primary py-2.5 px-6 text-xs font-bold"
+                className="btn-pill-primary py-2.5 px-6 text-xs font-bold w-full sm:w-auto"
               >
                 {isSubmitting ? 'Submitting...' : 'Yes, Submit'}
               </button>

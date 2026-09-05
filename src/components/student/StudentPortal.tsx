@@ -226,17 +226,17 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
   // 4. STUDENT-FIRST HOME PAGE (Default experience at "/")
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#222222] flex flex-col justify-between p-4 sm:p-5">
+    <div className="min-h-dvh bg-[#fafafa] text-[#222222] flex flex-col justify-between p-3 sm:p-5 overflow-x-clip">
       {/* Top Header Bar */}
-      <header className="max-w-3xl w-full mx-auto flex items-center justify-between pb-3 border-b border-[#e5e5e5]">
-        <div className="flex items-center gap-2">
+      <header className="max-w-3xl w-full mx-auto flex items-center justify-between gap-2 pb-3 border-b border-[#e5e5e5] min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <img
             src="/logo.png"
             alt="Creativa"
-            className="h-8 w-auto object-contain shrink-0"
+            className="h-7 sm:h-8 w-auto object-contain shrink-0"
           />
-          <div>
-            <span className="font-extrabold text-xs text-[#222222] tracking-tight block leading-tight">
+          <div className="min-w-0 hidden min-[360px]:block">
+            <span className="font-extrabold text-xs text-[#222222] tracking-tight block leading-tight truncate">
               Creativa Hub
             </span>
             <span className="text-[10px] text-[#004e9e] font-bold block">
@@ -248,11 +248,12 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         {/* Secondary Coordinator Entry */}
         <button
           onClick={onSwitchToCoordinator}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-[#616161] hover:text-[#004e9e] hover:bg-white border border-transparent hover:border-[#e5e5e5] transition-all cursor-pointer"
+          className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-semibold text-[#616161] hover:text-[#004e9e] hover:bg-white border border-transparent hover:border-[#e5e5e5] transition-all cursor-pointer shrink-0"
           title="Coordinator Login"
         >
-          <Shield className="w-3 h-3 text-[#004e9e]" />
-          <span>Coordinator Login</span>
+          <Shield className="w-3 h-3 text-[#004e9e] shrink-0" />
+          <span className="hidden min-[380px]:inline">Coordinator Login</span>
+          <span className="min-[380px]:hidden">Admin</span>
         </button>
       </header>
 
